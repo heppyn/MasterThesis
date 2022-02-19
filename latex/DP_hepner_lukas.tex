@@ -570,16 +570,362 @@ Obrázek~\ref{fig:light} ve své levé části zobrazuje scénu vykreslenou pomo
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % Stíny
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-\newpage 
-\section{Stíny}
 
-\todo{Zpracovat sekci o stinovani}
-Obrázek se stíny~\ref{fig:shadows}
+\chapter{Mapování stínů}
+
+V levé části obrázku~\ref{fig:shadows_intro} lze vidět scénu nasvícenou globálním světlem. Každý blok scény je nasvícen individuálně a ignoruje ostatní bloky, které by ho mohli zastiňovat. Tento efekt působí velice nereálně zvláště v podrostu džungle a~pod širokými korunami akácií, které jsou nasvíceny plným světlem. Přidáním stínů lze docílit věrohodnější reprezentace reálného světa a~hráč získá lepší představu o pozici bloků vůči sobě.
 
 \begin{figure}\centering
-	\includegraphics[width=\textwidth]{images/shadows}
-	\caption[Vykreslení stínů]{Vykreslení stínů}\label{fig:shadows}
+	\includegraphics[width=\textwidth]{images/shadows/intro}
+	\caption[Porovnání scnény bez stínu a se stíny]{Porovnání scnény bez stínu a se stíny}\label{fig:shadows_intro}
 \end{figure}
+\todo{Moc siroky obrazek}
+
+Trasování tisíců paprsků světla v reálném čase je výpočetně neúnosné. Proto je použita technika mapování stínů, využívající hloubkového bufferu grafické karty. Scéna je nejprve vykreslena z pohledu světla a hodnoty hloubky fragmentů uloženy do textury nazývané mapa stínů.
+
+Pro druhé vykreslovací kolo, je mapa stínů předána fragment shaderu. Ten provede transformaci pozice fragmentu z prostoru světa (world space) na pozici v prostoru světla a~porovná jeho hloubku s hloubkou uloženou v mapě stínů~\cite{lopgl_shadows}.
+
+\section{Vykreslení mimo obrazovku}
+
+OpenGL umožňuje změnit objekt, do kterého se uloží výsledek vykreslovacího řetězce. V~základním nastavení to je obrazovka hráče. Toto nastavení lze změnit vytvořením nového framebufferu a textury, do které se bude vykreslovat.
+
+Textura může mít jiné rozlišení, než má okno, na které je vykreslována scéna. Zvětšením rozlišení se zlepší kvalita stínů, na úkor rychlosti vykreslování. Mapa stínů nemusí pokrývat veškeré objekty, které hráč vidí. Proto je textuře nastaven okraj, s maximální hloubkou. Při čtení pixelů mimo texturu se díky parametru \texttt{GL\_CLAMP\_TO\_BORDER} vrátí maximální hloubka a vykreslovaný objekt nebude mít stín.
+
+\begin{verbatim}
+Texture_.Generate(Width, Height, nullptr);
+glBindTexture(GL_TEXTURE_2D, Texture_.Id);
+// set no shadow outside of the shadow map
+constexpr float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+glTexParameterfv(
+    GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+glBindTexture(GL_TEXTURE_2D, 0);
+\end{verbatim}
+
+Pro vykreslení je vygenerován nový framebuffer, jemuž je textura předána jako hloubková složka. Při výpočtu stínu není potřeba buffer pro barvu. Framebuffer objekt by bez něj nebyl kompletní, a proto se musí explicitně nastavit \texttt{glDrawBuffer} a~\texttt{glReadBuffer} na \texttt{GL\_NONE}. 
+
+\begin{verbatim}
+// attach to framebuffer
+glGenFramebuffers(1, &FBO_);
+glBindFramebuffer(GL_FRAMEBUFFER, FBO_);
+glFramebufferTexture2D(
+    GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+    GL_TEXTURE_2D, Texture_.Id, 0);
+glDrawBuffer(GL_NONE);
+glReadBuffer(GL_NONE);
+\end{verbatim}
+
+Před vykreslením se musí nastavit velikost zobrazovacího zařízení, na které se má scéna vykreslit. V tomto případě velikost textury mapy stínů.
+
+\begin{verbatim}
+glViewport(0, 0, Width, Height);
+\end{verbatim}
+
+Pro vykreslení do mapy stínů je použit shader, který transformuje vertex do souřadnic světla. A předá pozici textury k dalšímu zpracování.
+
+\begin{verbatim}
+TexCoord = vec2(aTexCoord.x + shift.x, aTexCoord.y + shift.y);
+gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+\end{verbatim}
+
+Fragment shader vyřadí všechny průhledné fragmenty a zapíše jejich hloubku.
+
+\begin{verbatim}
+float alpha = vec4(texture(texture_diffuse1, TexCoord)).a;
+if (alpha < 0.05)
+    discard;
+
+gl_FragDepth = gl_FragCoord.z;
+\end{verbatim}
+
+\section{Vykreslení stínu}
+
+K vykreslení stínu je použit shader z kapitoly o světle. Globální složka světla je vynásobena hodnotou \textit{(1 -- shadow)}, kde \textit{shadow = 1} znamená maximální stín a~\textit{shadow = 0} žádný stín.
+
+\begin{verbatim}
+float shadow = ShadowCalculation(fs_in.FragPos, dotLightNormal);
+vec3 global = 
+    (1 - shadow) * globalInt * light.global * 
+    vec3(texture(texture_diffuse1, TexCoord));
+\end{verbatim}
+
+Funkce \texttt{ShadowCalculation} vrátí hodnotu 1, pokud je hloubka fragmentu větší než hodnota v mapě stínů, jinak vrátí 0.
+
+\begin{verbatim}
+// perform perspective divide
+vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+// transform to [0,1] range
+projCoords = projCoords * 0.5 + 0.5;
+float closestDepth = texture(shadowMap, projCoords.xy).r; 
+float currentDepth = projCoords.z;
+return currentDepth > closestDepth  ? 1.0 : 0.0;
+\end{verbatim}
+
+Scéna~\ref{fig:shadows_acne} je vykreslena s použitím toho shaderu. Stíny stromů jsou správně vykresleny, oko diváka však přitáhnou artefakty vzniklé při výpočtu stínu, nazývající se stínové akné.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/acne}
+	\caption[Stínové akné]{Stínové akné}\label{fig:shadows_acne}
+\end{figure}
+
+\section{Stínové akné}
+
+Viditelné artefakty vznikají na površích, které by neměly mít stín. Problém ilustruje diagram~\ref{fig:shadows_diag_acne}, kde je mapa stínů promítnuta na vodorovný povrch. Každá šipka představuje jeden paprsek světla -- texel mapy stínů -- dopadající na povrch. Omezené rozlišení mapy stínů má za důsledek, že několik fragmentů může číst hodnotu hloubky ze stejného texelu. Fragmenty nacházející se nad žlutou křivkou nemají stín, fragmenty nacházející se pod ní stín mají. 
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/diag_acne}
+	\caption[Důvod vzniku stínového akné]{Důvod vzniku stínového akné}\label{fig:shadows_diag_acne}
+\end{figure}
+
+K tomuto problému dochází v přídě, kdy světlo dopadá na povrch pod úhlem. V jednoduché scéně, kdy je slunce nad hlavou hráče, by k tomuto problému nedocházelo. Takové scény nejsou vizuálně zajímavé a značně by omezovali možnosti enginu.
+
+Problém lze vyřešit posunutím mapy stínů (nebo povrchu objektu) tak, aby se texely mapy stínů nenacházely na povrchem objektu, viz diagram~\ref{fig:shadows_diag_acne_fix}.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/diag_acne_fix}
+	\caption[Zamezení vzniku stínového akné]{Zamezení vzniku stínového akné}\label{fig:shadows_diag_acne_fix}
+\end{figure}
+
+Pro posun mapy lze zvolit konstantu.
+
+\begin{verbatim}
+float bias = 0.0085;
+float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+\end{verbatim}
+
+Toto řešení funguje pro světlo dopadající na povrch pod stejným úhlem. Pokud se změní zdroj světla nebo orientace objektu, nemusí být konstanta dostatečně velká a problém se bude opakovat. Robustnějším řešením je vypočítat odchylku -- \texttt{bias} -- podle úhlu dopadu světla, který bude největší pro světlo dopadající na povrch pod ostrým úhlem a nejmenší pro světlo dopadající kolmo.
+
+\begin{verbatim}
+float bias = max(0.0085 * (1.0 - dotLightNormal), 0.00085);
+\end{verbatim}
+
+\section{Ostré stíny}
+
+Při pohledu na scénu~\ref{fig:shadows_pcf_hard} lze odhalit nedostatečné rozlišení mapy stínů. Několik vykreslovaných fragmentů se namapuje na jeden texel z mapy stínů. Výsledkem jsou zubaté hrany stínu s velmi ostrým přechodem. Řešení, které nevyžaduje zvětšení rozlišení je procentuálně bližší filtrování (percentage--closer filtering -- PCF).
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/pcf_hard}
+	\caption[Ostrá hrana stínu]{Ostrá hrana stínu}\label{fig:shadows_pcf_hard}
+\end{figure}
+
+Technika PCF produkuje jemnější stíny. Ty se jeví méně hranaté a zubatý efekt není tak výrazný. PCF zahrnuje více způsobu filtrování, jehož základem je vícenásobné čtení vzorků z textury stínu a jejich zprůměrování. Jednoduchá technika je čtení hodnot ve čtverci kolem zpracovávaného texelu.
+
+\begin{verbatim}
+float shadow = 0.0;
+vec2 texelSize = 1.0 / textureSize(texture_shadow, 0);
+for(int x = -1; x <= 1; ++x) {
+    for(int y = -1; y <= 1; ++y)  {
+        float pcfDepth = texture(
+            texture_shadow,
+            projCoords.xy + vec2(x, y) * texelSize).r;
+        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+    }    
+}
+shadow /= 9.0;
+\end{verbatim}
+
+Scéna~\ref{fig:shadows_pcf_soft} je vykreslena při použití 9~vzorků. Při pohledu z~dálky lze pozorovat lepší výsledky, zuby stínů nejsou tolik patrné, jako při použití jednoho vzorku. Při bližším pohledu na stébla trávy, lze pozorovat rozšíření stínu o~jeden texel. Štíhlé textury již nevrhají přesné stíny, výměnou za zlepšení pohledu z~dálky, kdy byl vrhaný stín nepřesný (velikost texelu neodpovídala velikosti textury) a~byla vykreslena pouze jeho část s~velice ostrým přechodem.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/pcf_soft}
+	\caption[Měkká hrana stínu]{Měkká hrana stínu}\label{fig:shadows_pcf_soft}
+\end{figure}
+
+\section{Pozice mapy stínů na scéně}
+
+Mapa stínů musí být posouvána podle pozice kamery v herním světě. Objekty jsou generovány kolem postavy hráče a pokud se hráč posune od počátku světa, objekty budou smazány a nemohou vrhat stíny. Mapa stínů má však omezené rozlišení a stínováním objektů, které jsou vygenerované, ale hráč je nemá šanci vidět (jsou například za ním), se snižuje kvalita stínů. Pro maximální využití dostupného rozlišení stačí pokrýt pouze objekty, které může hráč v daném snímku vidět. Viditelná část světa je určena maticí pohledu (view) a maticí projekce (projection). Tyto matice tvoří frustum, ve kterém budou objekty viditelné. Toto frustum je potřeba obsáhnout frustem světla s co nejmenšími přesahy. Tato skutečnost ve 2D světě, je ilustrována na obrázku~\ref{fig:shadows_frustum_fit}.
+
+\begin{figure}\centering
+	\includegraphics[width=0.7\textwidth]{images/shadows/frustum_fit}
+	\caption[Frustum světla okolo frusta kamery]{Frustum světla okolo frusta kamery}\label{fig:shadows_frustum_fit}
+\end{figure}
+
+\subsection{Souřadnice frusta kamery}
+
+Matice pohledu a projekce transformují souřadnice světa na normalizované souřadnice zařízení (NDC – normalized device coordinates). Každá souřadnice na jedné ze tří os NDC nabývá hodnot $[-1, 1]$. Do souřadnic světa je lze převést vynásobením inverzí matic pohledu a projekce~\cite{lopgl_csm}.
+
+$$
+v_{NDC} = M_{proj} * M_{view} * v_{world}
+$$
+$$
+v_{world} = (M_{proj} * M_{view})^{-1} * v_{NDC}
+$$
+
+Pro vytvoření frusta světla, je nutné zjistit souřadnice rohů frusta kamery. Díky nim je možné přesně zjistit jakou část světa má frustum světla pokrývat. Souřadnice jsou vypočítané následujícím způsobem:
+
+\begin{verbatim}
+std::vector<glm::vec4> Helpers::Math::FrustumCornersWordSpace(
+  const glm::mat4& proj, const glm::mat4& view) {
+    const auto inv = glm::inverse(proj * view);
+
+    std::vector<glm::vec4> frustumCorners;
+    for (unsigned int x = 0; x < 2; ++x) {
+        for (unsigned int y = 0; y < 2; ++y) {
+            for (unsigned int z = 0; z < 2; ++z) {
+                const glm::vec4 pt =
+                    inv * glm::vec4(
+                        2.0f * x - 1.0f, 2.0f * y - 1.0f,
+                        2.0f * z - 1.0f, 1.0f);
+                frustumCorners.emplace_back(pt / pt.w);
+    }}}
+
+    return frustumCorners;
+}
+\end{verbatim}
+
+\subsection{Matice pohledu a projekce světla}
+
+Pro výpočet matice pohledu světla je potřeba zjistit bod, který je ve středu stínované oblasti. Tento bod se nachází ve středu frusta kamery. A je ho možné získat zprůměrováním pozic rohů frusta.
+
+\begin{verbatim}
+glm::vec3 Helpers::Math::FrustumCenter(
+  const std::vector<glm::vec4>& corners) {
+    auto center = glm::vec3(0.0f);
+    for (const auto& v : corners) {
+        center += glm::vec3(v);
+    }
+    center /= corners.size();
+
+    return center;
+}
+\end{verbatim}
+
+Matice pohledu je získána pomocí funkce \texttt{glm::lookAt} a směru světla.
+
+\begin{verbatim}
+const auto lightView = glm::lookAt(
+    center,
+    center + lightDir,
+    glm::vec3(0.0f, 1.0f, 0.0f));
+\end{verbatim}
+
+Pro stínování scény je použito globální světlo. K výpočtu matice projekce bude tedy použita funkce glm::ortho zaručující ortografickou projekci. Pro výpočet je nutné zjistit parametry \texttt{left, right, bottom, top, zNear} a~\texttt{zFar}.
+
+Při pohledu od zdroje světla bude jeho frustum osově zarovnaný kvádr, těsně objímající frustum kamery. Rohy kamery lze pomocí matice pohledu světla transformovat do souřadnicového systému pohledu světla. Z~těchto transformovaných rohů je vybráno maximum a~minimum v~každé ose, definující frustum světla.
+
+\begin{verbatim}
+for (const auto& v : corners) {
+    const auto trf = lightView * v;
+    minX = std::min(minX, trf.x);
+    maxX = std::max(maxX, trf.x);
+    minY = std::min(minY, trf.y);
+    maxY = std::max(maxY, trf.y);
+    minZ = std::min(minZ, trf.z);
+    maxZ = std::max(maxZ, trf.z);
+}
+\end{verbatim}
+
+Před vytvořením matice projekce je potřeba upravit proměnnou \texttt{minZ} a~\texttt{maxZ}, představující blízkou a vzdálenou plochu frusta. S aktuální hodnotou by stíny vrhaly pouze objekty viditelné hráčem. Například stín koruny stromu by se objevil pouze, pokud by ji hráč viděl.
+
+Posunuté hranice frustra by měly pokrývat všechny objekty na scéně. Příliš velkorysým posunutím však dojde ke ztrátě přesnosti mapy stínů. Hranice by tedy měly být posunuté podle aktuální scény, například aby byl vykreslen stín pod nejvyšším stromem, u jehož paty hráč stojí.
+
+\todo{mozna zahodit}
+
+\begin{verbatim}
+if (minZ < 0) 
+    minZ *= zMult;
+else 
+    minZ /= zMult;
+if (maxZ < 0) 
+    maxZ /= zMult;
+else 
+    maxZ *= zMult;
+
+const glm::mat4 lightProjection = 
+    glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
+return lightProjection * lightView;
+\end{verbatim}
+
+\section{Kaskádové mapování stínů}
+
+Jednoduché mapování stínů má podstatnou nevýhodu. Pokud chceme rozšířit oblast pokrytou stíny, musíme zvýšit rozlišení mapy stínů. V opačném případě by stíny blízko hráče byly rozkostičkované. Tímto zvyšováním kvality stínů je masivně zatěžováno GPU. Stíny, které jsou vzdálenější od hráče budou mít stejnou kvalitu, jako ty mu blízké. Toto je zbytečné, vzdálenější stíny mohou mít horší kvalitu – hráč bude rozlišovat pouze jejich tvar a existenci, drobné detaily jsou zbytečné. Tento problém řeší kaskádové mapování stínů, skládající se z následujících kroků~\cite{lopgl_csm}.
+
+\begin{enumerate}
+\item Rozděl frustum kamery na $n$ subfrust, kde vzdálená plocha frusta $i$ je blízká plocha frusta $i + 1$.
+
+\item Pro každé frustum spočítej matici prostoru světla.
+\item Vykresli mapu stínů pro každé frustum.
+\item Předej všechny mapy stínu fragment shaderu.
+\item Vykresli scénu, kde podle vzdálenosti fragmentu vybereš patřičnou mapu stínů.
+\end{enumerate}
+
+Na obrázku~\ref{fig:shadows_frustum_div} je zobrazeno rozdělení frusta kamery na tři části. Velikost částí se zvětšuje s narůstající vzdáleností od blízké plochy kamery. Rozlišení však zůstává stejné, a proto jeden texel mapy stínů bude pokrývat větší plochu světa. Kvalita stínů se proto bude zhoršovat s rostoucí vzdáleností od hráče. Frustum lze rozdělit na libovolný počet částí. S větším počtem dělení, se snižuje viditelnost změny kaskády.
+
+\begin{figure}\centering
+	\includegraphics[width=0.7\textwidth]{images/shadows/frustum_div}
+	\caption[Rozdělení frusta kamery na tři části]{Rozdělení frusta kamery na tři části}\label{fig:shadows_frustum_div}
+\end{figure}
+
+\subsection{Mapy stínů}
+
+Pro práci s více texturami, mající stejný rozměr, OpenGL poskytuje pole 2D textur~\cite{kronos_array_texture}. Práce s polem textur usnadní práci (navázání pouze jedné textury) a umožní dynamické měnění počtu textur. Vytvoření 3D textury~\cite{kronos_3d_texture} probíhá obdobně jako vytvoření 2D textury. Jedním z rozdílů je zadání počtu textur, pro alokaci paměti grafické karty.
+
+K vykreslení do pole textur se používá technika vrstveného vykreslování. V ní je za pomoci geometry shaderu vytvořena nová geometrie pro každou vrstvu map stínů. Pro každou matici světla z kaskády je vytvořen nový trojúhelník, který je pomocí ní transformován, a~nastaveno číslo vrstvy.
+
+\begin{verbatim}
+void main() {
+    for (int i = 0; i < 3; ++i) {
+        gl_Position = lightSpaceMatrices[gl_InvocationID] * 
+                      gl_in[i].gl_Position;
+        gl_Layer = gl_InvocationID;
+        TexCoord = gs_in[i].TexCoord;
+        EmitVertex();
+    }
+    EndPrimitive();
+}
+\end{verbatim}
+
+Pro vykreslení stínů je použit shader vykreslující mapu stínů s úpravami umožňujícími práci s mapami stínů. Pro zvolení správné matice světla je vypočítána hodnota hloubky fragmentu (v prostoru pohledu kamery), která je následně porovnána se vzdáleností nejbližší změny kaskády.
+
+\begin{verbatim}
+vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
+float depthValue = abs(fragPosViewSpace.z);
+
+int layer = -1;
+for (int i = 0; i < cascadeCount; ++i) {
+    if (depthValue < cascadePlaneDistances[i]) {
+        layer = i;
+        break;
+    }
+}
+if (layer == -1) {
+    layer = cascadeCount;
+}
+vec4 fragPosLightSpace = 
+    lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
+\end{verbatim}
+
+Na obrázku~\ref{fig:shadows_csm_acne} lze vidět tři kaskády. V první nedochází k stínovému akné, v druhé je již při bližším pozorování patrné a ve třetí je velice výrazné. K tomuto efektu dochází, protože texel v každé vrstvě pokrývá různě velkou plochu vykreslované geometrie. Proto je potřeba volit odchylku na základě vrstvy. Škálování odchylky inverzní hodnoty vzdálené plochy frusta, produkuje výsledky bez stínového akné.
+
+\begin{verbatim}
+float bias = max(0.0085 * (1.0 - dotLightNormal), 0.00085);
+if (layer == cascadeCount) {
+    bias /= farPlane * 0.008;
+}
+else {
+    bias /= cascadePlaneDistances[layer] * 0.02;
+}
+\end{verbatim}
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/csm_acne}
+	\caption[Velikost stínového akné v závislosti na kaskádě]{Velikost stínového akné v závislosti na kaskádě}\label{fig:shadows_csm_acne}
+\end{figure}
+
+\subsection{Výsledky}
+
+Scéna na obrázku~\ref{fig:shadows_csm} již neobsahuje stínové akné. Lze si všimnout dvou změn kaskád a zhoršení kvality stínů\footnote{Kaskády byly pro viditelnější efekt posunuty k blízké ploše frusta kamery.}. Rozlišení kaskád je nastaveno na 1024~x~1024 pixelů. S~tímto rozlišením je možné pokrýt celou herní scénu v~dostatečné kvalitě. Při použití jednoduché mapy stínů, bylo pokryto pouze malé okolí hráče. Při zvýšení rozlišení na 2048 x 2048 pixelů nebylo možné pokrýt celou scénu s~dostatečným rozlišením, přičemž velikost textury v paměti byla o~třetinu větší než při použití kaskád.
+
+\todo{zmerit vykonost kaskady vs jednoduchy}
+% https://stackoverflow.com/questions/28175631/how-to-measure-time-performance-of-a-compute-shader
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/shadows/csm}
+	\caption[Výsledek použití kaskádového mapování stínů]{Výsledek použití kaskádového mapování stínů}\label{fig:shadows_csm}
+\end{figure}
+
+
+
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % Modelování rostlin s využitím L-systémů
