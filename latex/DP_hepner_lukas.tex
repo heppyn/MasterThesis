@@ -881,15 +881,12 @@ Pro vykreslení stínů je použit shader vykreslující mapu stínů s úpravam
 vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
 float depthValue = abs(fragPosViewSpace.z);
 
-int layer = -1;
-for (int i = 0; i < cascadeCount; ++i) {
+int layer = CASCADE_COUNT - 1;
+for (int i = 0; i < CASCADE_COUNT - 1; ++i) {
     if (depthValue < cascadePlaneDistances[i]) {
         layer = i;
         break;
     }
-}
-if (layer == -1) {
-    layer = cascadeCount;
 }
 vec4 fragPosLightSpace = 
     lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
@@ -911,6 +908,32 @@ else {
 	\includegraphics[width=\textwidth]{images/shadows/csm_acne}
 	\caption[Velikost stínového akné v závislosti na kaskádě]{Velikost stínového akné v závislosti na kaskádě}\label{fig:shadows_csm_acne}
 \end{figure}
+
+Tato technika zavádí větvení, které v shaderech není chtěné. Zároveň neumožnuje dokonalé vylazení odchylky pro jednotlivé kaskády. Odchylka je pevně svázaná s počtem a vzdáleností kaskád. Její výpočet proto může být přesunut na CPU, k definici kaskád. Odchylky jsou předány shaderu pomocí pole a načteny následujícím způsobem.
+
+\begin{verbatim}
+float bias = max(0.0085 * (1.0 - dotLightNormal), 0.00085);
+bias *= cascadeBiases[layer];
+\end{verbatim}
+
+\subsection{Změna počtu kaskád}
+
+Engine umožňuje měnit počet kaskád při běhu programu. Shadery proto musí mít alokované dostatečně velké místo, pro uložení všech matic. Jedinou výjimkou je geometry shader, ve kterém je specifikován počet vyvolání.
+
+\begin{verbatim}
+#define CASCADE_COUNT 3
+layout(triangles, invocations = CASCADE_COUNT) in;
+layout(triangle_strip, max_vertices = 3) out;
+\end{verbatim}
+
+Pokud je \texttt{CASCADE\_COUNT} menší, než počet kaskád $n$. $n - 1$ nejvzdálenějších kaskád nebude vykresleno. Pokud je větší, bude plýtván výpočetní čas GPU. Počet kaskád shaderu nemůže být předán parametrem -- vyžaduje běh shaderu. Engine proto umožňuje znovu zkompilovat shadery za běhu a upravit hodnotu maker. Zdrojový kód je po načtení z~disku projit a všechna makra nahrazena specifikovanou hodnotou, kód je následně přeložen. Opakovaný překlad je proveden při změně počtu kaskád.
+
+\begin{verbatim}
+ShaderDepth_ = ResourceManager::SetShaderMacros(
+  "shadow_csm", {{ "CASCADE_COUNT", std::to_string(levels) }});
+\end{verbatim}
+
+Makra jsou použita i ve zbylých shaderech, umožňující alokaci přesného počtu prvků v~poli matic světla, kaskád, atd.
 
 \subsection{Výsledky}
 
