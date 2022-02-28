@@ -935,12 +935,105 @@ ShaderDepth_ = ResourceManager::SetShaderMacros(
 
 Makra jsou použita i ve zbylých shaderech, umožňující alokaci přesného počtu prvků v~poli matic světla, kaskád, atd.
 
-\subsection{Výsledky}
+\section{Optimalizace vykreslování}
 
-Scéna na obrázku~\ref{fig:shadows_csm} již neobsahuje stínové akné. Lze si všimnout dvou změn kaskád a zhoršení kvality stínů\footnote{Kaskády byly pro viditelnější efekt posunuty k blízké ploše frusta kamery.}. Rozlišení kaskád je nastaveno na 1024~x~1024 pixelů. S~tímto rozlišením je možné pokrýt celou herní scénu v~dostatečné kvalitě. Při použití jednoduché mapy stínů, bylo pokryto pouze malé okolí hráče. Při zvýšení rozlišení na 2048 x 2048 pixelů nebylo možné pokrýt celou scénu s~dostatečným rozlišením, přičemž velikost textury v paměti byla o~třetinu větší než při použití kaskád.
+Po zapnutí kaskádového stínování došlo k viditelnému poklesu FPS. K měření výkonu a následné optimalizaci byla vytvořena třída \texttt{GpuTimer}, umožňující měřit délku operací probíhajících na GPU. Požadavky pro vykreslení na grafické kartě jsou asynchronní. Synchronizace CPU a GPU ale, probíhá jen v~určitých bodech programu, např. výměna bufferů. Pro měření jednotlivých vykreslovacích volání, proto musí být do CPU kódu umístěna synchronizační bariéra -- aktivní čekání. Od verze OpenGL 3.3 je možné využít dotazy na dobu běhu~\cite{timer}. Vygenerování dotazů probíhá zavoláním funkce: 
 
-\todo{zmerit vykonost kaskady vs jednoduchy}
-% https://stackoverflow.com/questions/28175631/how-to-measure-time-performance-of-a-compute-shader
+\begin{verbatim}
+glGenQueries(2, QueryId_);
+\end{verbatim}
+
+Aktuální hodnota časovače je zjištěna dotazem:
+
+\begin{verbatim}
+glQueryCounter(QueryId_[0], GL_TIMESTAMP);
+\end{verbatim}
+
+Čas je zaznamenán po doběhnutí všech předchozích volání~\cite{kronos_counter}. Před vyčtením hodnoty časovače musí CPU aktivně čekat, dokud není výsledek dotazu k dispozici. A následně výsledky dotazu načíst.
+
+\begin{verbatim}
+glQueryCounter(QueryId_[1], GL_TIMESTAMP);
+
+int available = 0;
+while (!available) {
+    glGetQueryObjectiv(
+        QueryId_[1], GL_QUERY_RESULT_AVAILABLE, &available);
+}
+long long start, stop;
+
+glGetQueryObjecti64v(QueryId_[0], GL_QUERY_RESULT, &start);
+glGetQueryObjecti64v(QueryId_[1], GL_QUERY_RESULT, &stop);
+
+return stop - start;
+\end{verbatim}
+
+Všechna následující měření probíhala po načtení totožné scény, s kamerou směřující stejným směrem, zprůměrováním prvních 1000 hodnot časovače.
+
+\subsection{Průhledné textury}
+
+Pro správné vykreslení stínů průhledných textur musí fragment shader pracovat s texturou objektu. Načíst zní hodnotu průhlednosti. A zapsat do hloubkového bufferu pouze, pokud je fragment neprůhledný.
+
+\begin{verbatim}
+float alpha = vec4(texture(texture_diffuse1, TexCoord)).a;
+if (alpha < 0.05)
+    discard;
+
+gl_FragDepth = gl_FragCoord.z;
+\end{verbatim}
+
+Čtením z textury u fragmentu, který nemá průhlednost je ztrácen výkon. Další optimalizace, které nemůže být použita, je brzký test hloubky (early depth test). Grafická karta může provést test hloubky před spuštěním fragment shaderu a vyřadit fragmenty, které nebudou viditelné. Použitím klíčového slova \texttt{discard} a zapsáním do hloubkového bufferu je tento test vypnut~\cite{kronos_eft}.
+
+Pro změření výkonu byl vytvořen prázdný fragment shader s explicitně zapnutým brzkým testem hloubky.
+
+\begin{verbatim}
+layout(early_fragment_tests) in;
+
+void main() {}
+\end{verbatim}
+
+Vykreslení mapy stínů s kontrolou průhlednosti trvalo v průměru 31,52~ms. Při použití prázdného shaderu na všechny objekty, trvalo vykreslení 23,58~ms. Optimalizace přináší očekávané výsledky. Při použití obou shaderů, pro průhle-dné a~neprůhledné objekty, došlo k~zhoršení času na 24,65~ms. Tento přístup však produkuje korektní stíny a~díky nízkému procentu průhledných objektů na scéně (celkový počet objektů byl 159~021 z toho 22~613 průhledných), přináší významné zrychlení. 
+
+\subsection{Ořezání scény}
+
+Doposud byly grafické kartě předávány všechny objekty na scéně. Ztráta výkonu byla omezena díky ořezávacím testům, probíhajícím před spuštěním výpočetně náročného fragment shaderu. Testy z vykreslovacího řetězce vyřadí všechny fragmenty, které se nacházejí mimo prostor obrazovky.
+
+Při vykreslování map stínů je použit geometry shader, generující nová primitiva pro každou kaskádu. Tyto primitiva nejsou automaticky ořezána grafickou kartou, jako v případě fragment shaderu. Dochází tedy ke generování primitiv, které hráč nemůže vidět a ani nebudou vrhat stín na viditelnou plochu.
+
+Engine proto musí provést ořezání objektů, před jejich předáním grafické kartě. Testování je prováděno na úrovni chunků. Pokud je část chunku viditelná hráčem, pak je uložen ukazatel na jeho obsah, který je následně předán grafické kartě. Situaci ilustruje obrázek~\ref{fig:visible_chunks}, kde jsou viditelné chunky zvýrazněny.
+
+\begin{figure}\centering
+	\includegraphics[width=0.7\textwidth]{images/visible_chunks}
+	\caption[Ořezání neviditelných chunků]{Ořezání neviditelných chunků}\label{fig:visible_chunks}
+\end{figure}
+
+Při testu viditelnosti je každý roh chunku transformován do prostoru kamery. Pokud je bod viditelný, jeho souřadnice na ose x musí být z intervalu $[-1, 1]$. Jeho souřadnice na ose z musí být menší než 1 (nacházet se před blízkou plochou kamery). Souřadnice na ose y nejsou kontrolovány, protože roh chunku se může nacházet pod spodní rovinou vymezující frustum, ale jeho objekty budou přesto viditelné -- například stromy. Kontrola zda je $y < 1$ by způsobovala mizení chunků při sklonění kamery.
+
+\begin{verbatim}
+bool Scene::IsPointInView(
+  const glm::vec3& position, const glm::mat4& projView) {
+    auto pt = projView * glm::vec4(position, 1.0f);
+    pt /= pt.w;
+
+    return pt.x >= -1.0f && pt.x <= 1.0f && pt.z <= 1.0f;
+}
+\end{verbatim}
+
+Při pouhé kontrole rohů by mohlo dojít k ořezání chunků, jež se nachází před hráčem, ale žádný jejich roh není viditelný. K tomu může dojít, pokud má hráč úzké zorné pole, nebo se divá směrem k zemi pod dostatečným úhlem. Situace, kdy se hráč dívá kolmo k zemi je ilustrována na obrázku~\ref{fig:visible_chunks_down}. Viditelná část herní plochy je vymezena červenými přímkami. Ke kontrole je předán bod, nacházející se na hranici chunků -- vždy je vybrána hranice bližší k hráči -- a pozici x rovné pozici hráče na ose x, respektive ose z, pokud je hranice rovnoběžná s osou z.
+
+\begin{figure}\centering
+	\includegraphics[width=0.7\textwidth]{images/visible_chunks_camera_down}
+	\caption[Ořezání chunků při pohledu kolmo dolů]{Ořezání chunků při pohledu kolmo dolů}\label{fig:visible_chunks_down}
+\end{figure}
+
+Pozice rohu na ose y je nejnižší bod v chunku. Pokud se hráč podívá vzhůru, všechny rohy v chunku budou oříznuty blízkou plochou kamery. Z tohoto důvodu je omezen maximální náklon kamery, který je použit při výpočtu matice pohledu. Náklon je oříznut na interval $[-90\degree, 0\degree]$ vůči vodorovné ploše.
+
+Ořezáním chunků scény byl omezen počet objektů, předávaných grafické kartě ze 159~021 na 43~605. Díky tomu se snížil čas potřebný k~vykreslení map stínů z~24,65~ms na 7,22~ms.
+
+\section{Výsledky}
+
+Scéna na obrázku~\ref{fig:shadows_csm} je vykreslena pomocí kaskádového mapování stínů. Lze si všimnout dvou změn kaskád a zhoršení kvality stínů\footnote{Kaskády byly pro viditelnější efekt posunuty k blízké ploše frusta kamery.}. Rozlišení kaskád je nastaveno na 1024 x 1024 pixelů. S tímto rozlišením je možné pokrýt celou herní scénu v dostatečné kvalitě. Pro pokrytí celé scény v uspokojivé kvalitě, bylo potřeba zvýšit rozlišení jednoduché mapy stínů alespoň na 4096 x 4096 pixelů. Ztrátu kvality však bylo stále možné pozorovat při přiblížení se k objektu.
+
+Měření ukázala, že použitím CSM, nedochází k vysoké ztrátě výkonu. Vykreslení jednoho snímku trvalo 37,92~ms, oproti 35,31~ms při použití jednoduché mapy. Kaskádové mapování lze zároveň lépe škálovat. Přidáním dvou kaskád se výrazně zvýšila kvalita stínů v blízkosti hráče. A vykreslení snímku trvalo 41,78~ms. Zvýšením rozlišení jednoduché mapy na 8192 x 8192 pixelů, nedošlo k dostatečnému zlepšení stínů v blízkosti hráče. A vykreslení snímku trvalo déle (68,47~ms) než při použité pěti kaskád. Použití CSM se tedy jeví jako lepší řešení.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/shadows/csm}
