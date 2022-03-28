@@ -65,7 +65,7 @@ Vykreslovací engine má za úkol převod scény definované v 3D prostoru, na 2
 
 Tyto kroky je možné masivně paralelizovat a využít tisíců jader, které může grafická karta obsahovat. Každé jádro spouští malý program, pro každý krok vykreslovacího řetězce. Tyto programy jsou nazývané shadery. Některé ze shaderů může definovat vývojář a nahradit nimi existující výchozí shadery. OpenGL pro jejich programování využívá OpenGL shading language (GLSL)~\cite{lopgl_triangle}.
 
-\subsection{Předání dat grafické kartě}
+\section{Předání dat grafické kartě}
 
 Scéna je složena z kusů terénu (třída \texttt{Chunk}), obsahující herní objekty. Chunky jsou rozmístěné na ploše vymezené osami \texttt{x} a \texttt{z}. Třída \texttt{Scene} má za úkol správu chunků a serializaci jejich dat do 1D pole, předané grafické kartě.
 
@@ -96,7 +96,7 @@ for (const auto& o : obs) {
 }
 \end{verbatim}
 
-\subsubsection{Instancing}
+\subsection{Instancing}
 
 Herní scéna obsahuje velké množství objektů se stejnou geometrií (např. krychle), s různou transformací vůči počátku světa. Každá krychle je složena z 12 trojúhelníků. Její vykreslení je téměř okamžité. Pokud by pro každou z nich bylo voláno samostatné vykreslení (draw call), velice rychle doje k drastickému snížení výkonu (komunikace s kartou přes sběrnici, uložení dat do patřičných bufferů\dots). Lepší řešení je poslat všechna data kartě najednou a ty následně vykreslit pomocí stejné geometrie. Toto řešení se nazývá instancing~\cite{lopgl_instancing}.
 
@@ -125,7 +125,7 @@ Rozdílné geometrie jsou užitečné, pokud chceme definovat krychli s rozdíln
 	\caption[Složení bloku ze tří částí]{Složení bloku ze tří částí}\label{fig:block_composition}
 \end{figure}
 
-\subsection{Společná data objektů}
+\section{Společná data objektů}
 
 Instancing umožňuje grafické kartě používat společná data pro všechny vykreslované objekty. Jeho protějškem v objektovém světe je návrhový vzor Flyweight.
 
