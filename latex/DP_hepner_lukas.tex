@@ -42,7 +42,10 @@
 \author{Lukáš Hepner} %jméno autora bez akademických titulů
 \supervisor{Ing. Adam Vesecký}
 \acknowledgements{Doplňte, máte-li komu a za co děkovat. V~opačném případě úplně odstraňte tento příkaz.}
-\abstractCS{V~několika větách shrňte obsah a přínos této práce v~češtině. Po přečtení abstraktu by se čtenář měl mít čtenář dost informací pro rozhodnutí, zda chce Vaši práci číst.}
+\abstractCS{Práce se zabývá tvorbou vykreslovací části herního enginu, specializujícího se na voxelovou grafiku. Engine umožňuje definovat vlastní programy pro vykreslování voxelů. Práce ukazuje využití těchto programů na grafické kartě, k~optimalizaci vykreslování světla a stínů.
+
+Druhá část textu se zabývá generováním terénu a vegetace, které engine vykresluje. Pozornost je věnována deterministickému chování tohoto generátoru.
+}
 \abstractEN{Sem doplňte ekvivalent abstraktu Vaší práce v~angličtině.}
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
@@ -56,8 +59,26 @@
 % \newacronym{FIT}{FIT}{Fakulta informa{\v c}n{\' i}ch technologi{\' i}}
 
 \begin{introduction}
-	%sem napište úvod Vaší práce
+První počítačové hry byly tvořeny jako jeden produkt, úzce spjatý s hardwarem, na který cílil. Při změně hardwaru bylo nutné začít s vývojem znovu, tak aby byly maximálně využity jeho zdroje. Změna přišla v půlce devadesátých let, kdy se hry začaly dělit na své základní komponenty a~herní mechaniky.
+
+Termín „herní engine“ vznikl v souvislosti s hrami jako je Doom vyvinutý společností id Software. Architektura Doomu poměrně dobře odděluje své základní komponenty (jako je trojrozměrný vykreslovací systém, detekce kolizí nebo audio systém) od grafiky, herních světů a pravidel hry. Hodnota tohoto rozdělení byla viditelná, když si ostatní vývojáři začali licencovat hry a předělávat je do nových produktů, přidáním nové grafiky, světů, zbraní, postav, vozidel a pravidel hry s pouze minimálními změnami v částech enginu~\cite{gea_11}.
+
+Moderní herní enginy umožňují vyvíjet aplikace pro desktop (Linux, \mbox{macOS}, Windows), mobilní zařízení (Android, iOS) i webové (HTML5) platformy. Poskytují obsáhlou sadu nástrojů umožňující programátorovi zabývat se tvorbou herního obsahu, místo znovu objevování kola~\cite{godot_intro}. Enginy často podporují tvorbu 2D i 3D her.
+
+S rozvojem her, s otevřeným světem vznikaly větší a větší nároky na designéry, musející vytvářet detaily každého zákoutí světa, do kterého se může hráč dostat. Některé hry proto využívají metody procedurálního generování obsahu.
+
+V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty následně vydat pro všechny hráče. Opačným směrem se vydávají hry, které generují veškerý obsah v průběhu hry. Touto technikou se nejvíce proslavila hra Minecraft, která umožňuje hráči prozkoumávat nekončící terén, generovaný na základě semínka světa. Každý hráč tak může objevovat svůj vlastní svět, lišící se od všech ostatních. 
+
 \end{introduction}
+
+\chapter{Cíle}
+
+Cílem práce je vytvořit engine, vykreslující voxelovou grafiku\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Pro zrychlení výpočtu a vykreslování bude využita grafická karta.
+
+Hráči je umožněno pohybovat se libovolným směrem po scéně. Engine proto musí dynamicky generovat svět na základě hráčovy pozice. Části světa, které hráč opustil a jsou mimo jeho vykreslovací vzdálenost budou uvolněny z paměti. Pro optimální běh na hardwaru s různou výkoností bude možné zvětšit, či zmenšit vykreslovanou oblast.
+
+Svět je generovaný na základě semínka. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným semínkem. Procedurální generátor bude vytvářet svět s různými biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu, nebo exportovat do souboru.
+
 
 \chapter{Vykreslovací engine}
 
@@ -150,6 +171,9 @@ Pokud má být engine schopný vykreslovat desetitisíce objektů je tato pamě�
 Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\texttt{float} je zvolen pro jednodušší komunikaci s grafickou kartou –- všechna předaná data mají formát float). Komponenta v paměti zabírá pouhých 8 B. Velikost herního byla redukována o 904 B.
 
 \texttt{Mesh} není dále používána jako komponenta herního objektu. Její implementace ze jmenného prostoru \texttt{Renderer}, kterou komponenta \texttt{Mesh} obsahuje jako svůj atribut, je použita pro vykreslení všech objektů se stejnou geometrií najednou. Vykreslení objektů zajišťuje třída \texttt{CubeRenderer}, viz obrázek~\ref{fig:go_components_fw}.
+
+\todo{nutnost spritesheetu}
+% Maximální počet texturovacích jednotek https://stackoverflow.com/questions/46426331/number-of-texture-units-gl-texturei-in-opengl-4-implementation-in-visual-studi#:~:text=Having%20looked%20at%20the%20implementation,31%20(32%20in%20total).
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
