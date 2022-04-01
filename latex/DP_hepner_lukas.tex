@@ -147,7 +147,7 @@ OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při
 
 \chapter{Architektura}
 
-Engine je rozdělen do několika modulů a sub modulů, seskupující stejnou funkcionalitou. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
+Engine je rozdělen do několika modulů a sub modulů, seskupujících stejnou funkcionalitou. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/architecture}
@@ -156,9 +156,11 @@ Engine je rozdělen do několika modulů a sub modulů, seskupující stejnou fu
 
 Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpracovávání a generování objektů na základě L-systému. Třídy zajišťující implementaci, s kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
 
+Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS architekturu (Entity-Component-System). Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
+
 Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
 
-Tyto dva moduly zajišťují všechnu funkcionalitu používanou generátorem terénu. 
+Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou yfunkcionalitu používanou generátorem terénu. 
 
 Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
 
