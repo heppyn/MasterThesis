@@ -80,7 +80,7 @@ Hráči je umožněno pohybovat se libovolným směrem po scéně. Engine proto 
 Svět je generovaný na základě semínka. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným semínkem. Procedurální generátor bude vytvářet svět s různými biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu, nebo exportovat do souboru.
 
 
-\chapter{Analýza}
+\chapter{Technologie}
 
 Na trhu se nachází celá řada herních enginů, jejichž cenové politiky umožňují vytvářet hry jak nezávislým vývojářům, kteří mohou využít enginy, dostupné zcela zdarma jako je Godot, Cocos2D. Nebo jsou zpoplatněné autorskými poplatky při dosažení zisku, jako je CryEngine, Unreal Engine, Unity~\cite{engines}. Herní studia často využívají placených licencí, zajišťujících podporu od tvůrce enginu.
 
@@ -143,7 +143,17 @@ OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při
 \item Operace provedené na vzorcích (Per-Sample Operations) --- Výstupní data fragmentu jsou podrobena sérii testů (mohou být specifikované uživatelem, např.: hloubkový test), které je mohou vyřadit z podílení se na výsledné barvě pixelu. Pokud projdou, je provedeno míchání barev s barvami, které již obsahuje framebuffer.
 \end{enumerate}
 
-\todo{Ostatni knihovny}
+\section{Další knihovny}
+
+Projekt obsahuje knihovny řešící specifické problémy. První z nich je OpenGL Mathematics -- GLM. Matematická knihovna určená pro práci s OpenGL. GLM poskytuje třídy a funkce navržené a implementované se stejnými jmenný-mi konvencemi jako GLSL. Neomezuje se však pouze na funkcionalitu GLSL. Poskytuje funkce na transformaci matic, kvateriony, balení dat, náhodná čísla, šum, atd\dots~\cite{glm_main}
+
+Další knihovnou je stb image sloužící k načítání obrázků. Knihovna má omezený počet typů souborů, s kterými dokáže pracovat. Její použití je však snadné a engine používá pouze dva typy obrázků – JPEG a PNG. Její autor o ní říká, že je primárně určená pro herní vývojáře a další osoby, které se dokáží vyhnout problematickým obrázkům a potřebují pouze jednoduché rozhraní~\cite{stb_image}.
+
+Pro generování terénu byl využit Perlinův šum implementovaný knihovnou siv::PerlinNoise~\cite{perlin}. Knihovna dokáže generovat 1D, 2D nebo 3D šum. Obsahuje taktéž podporu pro oktávový šum. Důležitou součástí knihovny je možnost poskytnout vlastní semínko, na jehož základě je šum generován.
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % Architektura
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 \chapter{Architektura}
 
@@ -264,7 +274,7 @@ Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\tex
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % Modelování rostlin s využitím L-systémů
+% % Vykreslování scény
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 \chapter{Vykreslování scény}
