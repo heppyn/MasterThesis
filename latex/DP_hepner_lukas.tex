@@ -79,9 +79,6 @@ Hráči je umožněno pohybovat se libovolným směrem po scéně. Engine proto 
 
 Svět je generovaný na základě semínka. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným semínkem. Procedurální generátor bude vytvářet svět s různými biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu, nebo exportovat do souboru.
 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % Modelování rostlin s využitím L-systémů
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 \chapter{Analýza}
 
@@ -107,7 +104,7 @@ Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižší
 
 \item Knihovny třetích stran --- poskytují algoritmy, kontejnery. Komunikují s~grafickou kartou. STL, Boost, GLM, OpenGL, Vulkan.
 
-\item Nezávislost na platformě --- obaluje systémová volání. Zajišťuje přenosnost mezi platformami. Souborový systém, primitivní datové typy, vlákna.
+\item Nezávislost na platformě --- obaluje systémová volání. Zajišťuje přenos-nost mezi platformami. Souborový systém, primitivní datové typy, vlákna.
 
 \item Hlavní systémy --- zajišťují základní funkce enginu. Asserce, matematika, náhodná čísla, alokátory, textové řetězce.
 
@@ -146,6 +143,26 @@ OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při
 \item Operace provedené na vzorcích (Per-Sample Operations) --- Výstupní data fragmentu jsou podrobena sérii testů (mohou být specifikované uživatelem, např.: hloubkový test), které je mohou vyřadit z podílení se na výsledné barvě pixelu. Pokud projdou, je provedeno míchání barev s barvami, které již obsahuje framebuffer.
 \end{enumerate}
 
+\todo{Ostatni knihovny}
+
+\chapter{Architektura}
+
+Engine je rozdělen do několika modulů a sub modulů, seskupující stejnou funkcionalitou. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/architecture}
+	\caption[Architektura enginu]{Architektura enginu}\label{fig:architecture}
+\end{figure}
+
+Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpracovávání a generování objektů na základě L-systému. Třídy zajišťující implementaci, s kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
+
+Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
+
+Tyto dva moduly zajišťují všechnu funkcionalitu používanou generátorem terénu. 
+
+Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
+
+Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots Hlavní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden, či více bloků najednou.
 
 
 \chapter{Vykreslovací engine}
