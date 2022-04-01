@@ -122,6 +122,11 @@ OpenGL je pouze specifikace, implementovaná výrobci grafických karet. Impleme
 
 Ovladače grafických karet jsou poskytovány výrobci karet. OpenGL je pouze standard, definující signaturu funkcí a jejich chování. Při překladu kódu proto není známé, jaký ovladač bude použit, a lokace funkcí se musí zjistit až za běhu programu. Funkce pro zjišťování adres funkcí jsou závislé na operačním systému. Skupina Khronos proto doporučuje využít jednu z knihoven pro načtení OpenGL~\cite{kronos_load_lib}. K tomuto účelu byla využita knihovna GLAD.
 
+\subsection{Jazyk pro psaní shaderů}
+K programování shaderů byl zvolen OpenGL Shading Language -- GLSL, jakožto hlavní jazyk určený pro OpenGL nevyžaduje žádné extenze. GLSL je jazyk podobný C – obsahuje stejné strukturální prvky (smyčky, větvení\dots). Avšak rozšiřuje datové typy C například o vektory, matice, textury\dots ~a~obsahuje vlastní standartní knihovnu~\cite{kronos_glsl}.
+
+Poslední verze je shodná s verzí OpenGL (4.6). Pro vývoj je však možné používat jiné verze v závislosti na požadovaných funkcích. Použitím nižší verze se teoreticky rozšíří počet kompatibilních zařízení, v praxi je však omezen verzí OpenGL, kterou používá engine.
+
 \subsection{Vykreslovací řetězec}
 OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při spuštění programu (např.: způsob mísení barev, povolení testu hloubky\dots). Některé se musí měnit podle dat, které se mají vykreslit (např.: face culling). Grafická karta má před každým voláním pro vykreslení scény uložena data objektů ve svých bufferech. Přiřazené textury do texturovacích jednotek. Nastavené proměnné shaderů a shadery, které se mají pro vykreslení použít. Tyto parametry představují stav OpenGL, podle něhož se vykreslí scéna. Vykreslení může probíhat ve více krocích -- vykreslovací příkaz OpenGL je zavolán několikanásobně. Při každém volání proběhnou následující kroky~\cite{kronos_render}:
 
