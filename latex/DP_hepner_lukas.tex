@@ -181,12 +181,17 @@ Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu
 
 Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots ~Hlavní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden, či více objektů najednou.
 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % Vykreslení scény
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
-\chapter{Vykreslovací engine}
+\chapter{Vykreslení scény}
 
 Vykreslovací engine má za úkol převod scény definované v 3D prostoru, na 2D plochu zobrazovacího zařízení hráče. Tento proces začíná na CPU, kde jsou herní objekty převedeny na data (matice), která jsou poslána grafické kartě. Zde jsou za pomocí série kroků transformována na zobrazitelné pixely. Tyto kroky jsou vysoce specializované a výstup každého z nich je použit jako vstup pro další. 
 
-Tyto kroky je možné masivně paralelizovat a využít tisíců jader, které může grafická karta obsahovat. Každé jádro spouští malý program, pro každý krok vykreslovacího řetězce. Tyto programy jsou nazývané shadery. Některé ze shaderů může definovat vývojář a nahradit nimi existující výchozí shadery. OpenGL pro jejich programování využívá OpenGL shading language (GLSL)~\cite{lopgl_triangle}.
+Tyto kroky je možné masivně paralelizovat a využít tisíců jader, které může grafická karta obsahovat. Každé jádro spouští malý program, pro každý krok vykreslovacího řetězce. Tyto programy jsou nazývané shadery. Některé ze shaderů může definovat vývojář a nahradit nimi existující výchozí shadery~\cite{lopgl_triangle}.
+
+V každém snímku je scéna vykreslena pomocí série za sebou jdoucích vykreslovacích příkazů OpenGL. Každý z nich upraví hodnotu pixelů výstupního bufferu, jejich přepsáním nebo smícháním současné a~nové barvy. Před každým vykreslovacím příkazem je potřeba nastavit stav OpenGL podle dat, která se mají aktuálně vykreslit. Před vykreslením může taktéž dojít ke změně použitého shaderu nebo výstupního bufferu (vykreslení mimo obrazovku).
 
 \section{Předání dat grafické kartě}
 
@@ -277,15 +282,6 @@ Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\tex
 \todo{nutnost spritesheetu}
 % Maximální počet texturovacích jednotek https://stackoverflow.com/questions/46426331/number-of-texture-units-gl-texturei-in-opengl-4-implementation-in-visual-studi#:~:text=Having%20looked%20at%20the%20implementation,31%20(32%20in%20total).
 
-
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % Vykreslování scény
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-
-\chapter{Vykreslování scény}
-
-V každém snímku je scéna vykreslena pomocí série za sebou jdoucích vykreslovacích příkazů OpenGL. Každý z nich upraví hodnotu pixelů výstupního bufferu, jejich přepsáním nebo smícháním současné a~nové barvy. Před každým vykreslovacím příkazem je potřeba nastavit stav OpenGL podle dat, která se mají aktuálně vykreslit. Před vykreslením může taktéž dojít ke změně použitého shaderu nebo výstupního bufferu (vykreslení mimo obrazovku).
-
 \section{Vyřazení neviditelných částí objektu}
 
 Část scény tvoří krychle mající všech šest stěn vyplněných neprůhlednou texturou. Při pohledu na krychli může hráč vidět maximálně tři její stěny najednou (z určitých úhlů pouze jednu nebo dvě). Minimálně 50~\% každé krychle je vykreslováno zbytečně. OpenGL je schopno vyřadit stěny, které směřují pryč od hráče, z vykreslovacího procesu a snížit počet volání fragment shaderu. Tato technika se nazývá face culling~\cite{lopgl_faceculling}.
@@ -340,11 +336,16 @@ if (alpha < 0.05)
 
 Problém s poloprůhlednými texturami však přetrvává a pro jeho vyřešení je nutné poloprůhledné textury seřadit.
 
-\section{Osvětlení scény}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % Osvětlení scény
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+\chapter{Osvětlení scény}
 
 Osvětlení v reálném světě je extrémně složitý problém. Jeho přesná simulace v aplikacích reálného času je výpočetně náročná. Pro zjednodušení výpočtu existují modely, které produkují výsledky podobné reálnému světu.
 
-\subsection{Phongův osvětlovací model}
+\section{Phongův osvětlovací model}
 
 Jednou z aproximací reálného světa je Phongův osvětlovací model, skládající se ze tří hlavních částí~\cite{lopgl_basic_light}.
 
@@ -396,7 +397,7 @@ Na obrázku~\ref{fig:phong} je vykreslená bedna osvícena všemi druhy světel 
 	\caption[Phongův osvětlovací model]{Phongův osvětlovací model}\label{fig:phong}
 \end{figure}
 
-\subsection{Materiál objektu}
+\section{Materiál objektu}
 
 Obrázek~\ref{fig:phong} zobrazuje dvě možnosti použití lesklého světla. Bedna jejíž celý povrch odráží světlo působí nepřirozeným dojmem. V reálném světě dřevo světlo neodráží\footnote{Dřevo s naleštěným povrchem světlo odrážet může, tato povrchová úprava však pravděpodobně nebude aplikována na přepravní bednu.}. Lesknout by se měl pouze její kovový okraj, a to jen v místech kde není poškozen.
 
@@ -431,7 +432,7 @@ for (unsigned int i = 0; i < Textures.size(); i++) {
 
 Pokud dojde ke čtení z textury, která není navázána, bude vrácena černá barva, představující nulový lesk~\cite{unbound_texture}.
 
-\subsection{Zdroje světla}
+\section{Zdroje světla}
 
 Aktuální implementace představuje bodový zdroj světla, jehož intenzita neklesá s uraženou vzdáleností. Tento model nereprezentuje reálné chování světla. Zavedené jsou dva nové druhy světla:
 
@@ -441,7 +442,7 @@ Aktuální implementace představuje bodový zdroj světla, jehož intenzita nek
 \item Bodové osvětlení --- Paprsky se šíří všemi směry. Intenzita klesá s uraženou vzdáleností.
 \end{itemize}
 
-\subsubsection{Globální světlo}
+\subsection{Globální světlo}
 
 Pro výpočet globálního světla není potřeba jeho poloha, pouze směrový vektor jeho paprsků, definovaný směrem od zdroje světla. Při výpočtu intenzity světla byl použit směr od fragmentu ke světlu. Jedinou změnou oproti dosavadnímu výpočtu je převrácení jeho směru.
 
@@ -452,7 +453,7 @@ vec3 global = globalInt * light.global *
     vec3(texture(texture_diffuse1, TexCoord));
 \end{verbatim}
 
-\subsubsection{Bodové světlo}
+\subsection{Bodové světlo}
 
 Intenzitu světla je možné snižovat lineárně s vzdáleností, kterou urazí. Toto řešení zajistí nižší nasvícení vzdálených objektů, a však vypadá poněkud uměle. Světla v reálném světě jsou z pravidla velmi jasné, pokud se nacházíme v jejich blízkosti. Jejich jas velice rychle klesá s narůstají vzdáleností. V určitém bodě se klesání zpomalí a přibližuje se k nule.
 
