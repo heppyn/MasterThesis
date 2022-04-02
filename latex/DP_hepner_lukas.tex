@@ -135,18 +135,18 @@ OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při
 
 \item Fragment shader --- Výstupem fragment shaderu je list barev, které budou zapsány do výstupních bufferů, hodnota hloubky a hodnota šablony (stencil value). Fragment shader může být definován uživatelem. Pokud není, hodnota barev není definovaná, je pouze zapsána hodnota hloubky a šablony.
 
-\item Operace provedené na vzorcích (Per-Sample Operations) --- Výstupní data fragmentu jsou podrobena sérii testů (mohou být specifikované uživatelem, např.: hloubkový test), které je mohou vyřadit z podílení se na výsledné barvě pixelu. Pokud projdou, je provedeno míchání barev s barvami, které již obsahuje framebuffer.
+\item Operace provedené na vzorcích (Per-Sample Operations) --- Výstupní data fragmentu jsou podrobena sérii testů (mohou být specifikované uživatelem, např.: hloubkový test), které je mohou vyřadit z podílení se na výsledné barvě pixelu. Pokud projdou, je provedeno míchání barev s~barvami, které již obsahuje framebuffer.
 \end{enumerate}
 
 \subsection{Podpůrné knihovny}
-OpenGL je pouze specifikace, implementovaná výrobci grafických karet. Implementace je napsaná v jazyce C. A není specifická pro jeden operační systém. Operace jako je vytváření okna, zpracování uživatelského vstupu, se liší v~závislosti na operačním systému a OpenGL od nich abstrahuje. Z tohoto důvodu je potřeba využít další knihovnu, zajišťující tyto funkce. K tomuto účelu byla vybrána knihovna GLFW, vytvářející korektní kontext OpenGL~\cite{lopgl_window}.
+OpenGL je pouze specifikace, implementovaná výrobci grafických karet. Implementace je napsaná v jazyce C. A není specifická pro jeden operační systém. Operace jako je vytváření okna, zpracování uživatelského vstupu, se liší v~závis-losti na operačním systému a OpenGL od nich abstrahuje. Z tohoto důvodu je potřeba využít další knihovnu, zajišťující tyto funkce. K tomuto účelu byla vybrána knihovna GLFW, vytvářející korektní kontext -- stav OpenGL~\cite{lopgl_window}.
 
-Ovladače grafických karet jsou poskytovány výrobci karet. OpenGL je pouze standard, definující signaturu funkcí a jejich chování. Při překladu kódu proto není známé, jaký ovladač bude použit, a lokace funkcí se musí zjistit až za běhu programu. Funkce pro zjišťování adres funkcí jsou závislé na operačním systému. Skupina Khronos proto doporučuje využít jednu z knihoven pro načtení OpenGL~\cite{kronos_load_lib}. K tomuto účelu byla využita knihovna GLAD.
+Ovladače grafických karet jsou poskytovány výrobci karet. OpenGL je pouze standard, definující signaturu funkcí a jejich chování. Při překladu kódu proto není známé, jaký ovladač bude použit, a lokace funkcí se musí zjistit až za běhu programu. Funkce pro zjišťování adres funkcí jsou závislé na operačním systému. Skupina Khronos proto doporučuje využít jednu z knihoven pro načtení funkcí OpenGL~\cite{kronos_load_lib}. K tomuto účelu byla využita knihovna GLAD.
 
 \subsection{Jazyk pro psaní shaderů}
-K programování shaderů byl zvolen OpenGL Shading Language -- GLSL, jakožto hlavní jazyk určený pro OpenGL nevyžaduje žádné extenze. GLSL je jazyk podobný C – obsahuje stejné strukturální prvky (smyčky, větvení\dots). Avšak rozšiřuje datové typy C například o vektory, matice, textury\dots ~a~obsahuje vlastní standartní knihovnu~\cite{kronos_glsl}.
+K programování shaderů byl zvolen OpenGL Shading Language -- GLSL, jakožto hlavní jazyk určený pro OpenGL nevyžaduje žádné extenze. GLSL je jazyk podobný C – obsahuje stejné strukturální prvky (smyčky, větvení\dots). Avšak rozšiřuje datové typy C například o vektory, matice, textury\dots ~a~obsahuje vlastní standardní knihovnu~\cite{kronos_glsl}.
 
-Poslední verze je shodná s verzí OpenGL (4.6). Pro vývoj je však možné používat jiné verze v závislosti na požadovaných funkcích. Použitím nižší verze se teoreticky rozšíří počet kompatibilních zařízení, v praxi je však omezen verzí OpenGL, kterou používá engine.
+Poslední vydaná verze je shodná s verzí OpenGL (4.6). Pro vývoj je však možné používat různé verze v závislosti na požadovaných funkcích. Použitím nižší verze se teoreticky rozšíří počet kompatibilních zařízení, v praxi je však omezen verzí OpenGL, kterou používá engine.
 
 \section{Další knihovny}
 
@@ -171,15 +171,15 @@ Engine je rozdělen do několika modulů a sub modulů, seskupujících stejnou 
 
 Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpracovávání a generování objektů na základě L-systému. Třídy zajišťující implementaci, s kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
 
-Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS architekturu (Entity-Component-System). Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
+Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
 
 Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
 
-Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou yfunkcionalitu používanou generátorem terénu. 
+Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou funkcionalitu používanou generátorem terénu. 
 
 Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
 
-Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots Hlavní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden, či více bloků najednou.
+Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots ~Hlavní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden, či více objektů najednou.
 
 
 \chapter{Vykreslovací engine}
@@ -259,7 +259,7 @@ Pokud má být objekt vykreslitelný musí obsahovat komponentu \texttt{Transfor
 	\caption[Komponenty herního objektu]{Komponenty herního objektu}\label{fig:go_components}
 \end{figure}
 
-\texttt{Mesh} obsahuje informace o vrcholech (\texttt{Vertex}) vykreslovaných trojúhelníků -- pozici na scéně, normálový vektor k úsečce mezi dvěma vrcholy trojúhelníku, pozici na textuře. A pole indexů, které říká, z jakých vrcholů jsou trojúhelníky složeny. Každý vrchol v má velikost $8 * 4 = 32$ B a \texttt{Mesh} jich obsahuje $6 * 4$. Každá stěna krychle má čtyři různé vrcholy\footnote{Krychle má 8 vrcholů. Vrcholy jednotlivých stěn se ale liší v normálovém vektoru a pozicí na textuře.}. Pole indexů má velikost $12 * 3 * 4$~B (počet trojúhelníků, počet vrcholů trojúhelníku, velikost \texttt{unsigned}). Celková velikost \texttt{Mesh}e představující krychli je:
+\texttt{Mesh} obsahuje informace o vrcholech (\texttt{Vertex}) vykreslovaných trojúhelníků -- pozici na scéně, normálový vektor k úsečce mezi dvěma vrcholy trojúhelníku, pozici na textuře. A pole indexů, které říká, z jakých vrcholů jsou trojúhelníky složeny. Každý vrchol v má velikost $8 * 4 = 32$ B a \texttt{Mesh} jich obsahuje $6 * 4$. Každá stěna krychle má čtyři různé vrcholy\footnote{Krychle má 8 vrcholů. Vrcholy jednotlivých stěn se ale liší v normálovém vektoru a~pozicí na textuře.}. Pole indexů má velikost $12 * 3 * 4$~B (počet trojúhelníků, počet vrcholů trojúhelníku, velikost \texttt{unsigned}). Celková velikost \texttt{Mesh}e představující krychli je:
 
 \[8 * 4 * 6 * 4 + 12 * 3 * 4 = 912\; B\]
 
@@ -284,7 +284,7 @@ Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\tex
 
 \chapter{Vykreslování scény}
 
-\todo{world coords, etc.}
+\todo{Uvod do kapitoly}
 
 \section{Vyřazení neviditelných částí objektu}
 
@@ -358,7 +358,7 @@ Jednou z aproximací reálného světa je Phongův osvětlovací model, skládaj
 
 Výpočet osvětlení může být prováděn na CPU, nastavením světlosti každé stěny bloku. Pokud má být docíleno věrnějšího výsledku, je nutné počítat světlost pro každý fragment objektu (úhel dopadu světla se může výrazně lišit pro fragmenty na opačných stranách objektu). Výpočet je proto prováděn na grafické kartě, přesněji ve fragment shaderu.
 
-Ambientní složka světla je předána grafické kartě, kde je vynásobena s barvou objektu -- textury.
+Ambientní složka světla je předána grafické kartě, kde je vynásobena s~barvou objektu -- textury.
 
 \begin{verbatim}
 vec3 ambient = 
@@ -376,7 +376,7 @@ vec3 diffuse = diff * light.diffuse *
     vec3(texture(texture_diffuse1, TexCoord));
 \end{verbatim}
 
-Intenzita odraženého světla (lesklá složka) je závislá na pozici pozorovatele (předána shaderu jako \texttt{view\_pos}). Pokud odražené světlo směřuje přímo do oka pozorovatele, je jeho intenzita nejvyšší. Vektor odraženého světla lze spočítat pomocí funkce \texttt{reflect}. Její první parametr je vektor směřující od světla k~fragmentu, tedy vektor opačný k \texttt{lightDir}. Druhý parametr je normálový vektor.
+Intenzita odraženého světla (lesklá složka) je závislá na pozici pozorovatele (předána shaderu jako \texttt{view\_pos}). Pokud odražené světlo směřuje přímo do oka pozorovatele, je jeho intenzita nejvyšší. Vektor odraženého světla lze spočítat pomocí funkce \texttt{reflect}. Její první parametr je vektor směřující od světla k~fragmentu, tedy vektor opačný k \texttt{lightDir}. Druhý parametr je normál-ový vektor.
 
 Intenzita je opět spočítána pomocí skalárního součinu, a umocněna lesklostí materiálu. Čím vyšší lesklost, tím méně je světlo rozptýleno do všech směrů a velikost efektu se zmenší~\cite{lopgl_basic_light}.
 
