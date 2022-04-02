@@ -1,5 +1,5 @@
 # About
-This project is a master thesis text on: Voxel engine for rendering and generating procedural worlds.
+This project is a master thesis text on: **Voxel engine for rendering and generating procedural worlds**.
 You can find the source code of the project [here](https://github.com/heppyn/VoxelGame).
 
 This project is written in latex, but has a working draft written in Microsoft Word.
