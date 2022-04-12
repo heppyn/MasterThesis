@@ -73,11 +73,11 @@ V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty n�
 
 \chapter{Cíle}
 
-Cílem práce je vytvořit engine, vykreslující voxelovou grafiku\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Pro zrychlení výpočtu a vykreslování bude využita grafická karta.
+Cílem práce je vytvořit engine vykreslující voxelovou grafiku\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Pro část výpoč-tu a vykreslování bude využita grafická karta.
 
-Hráči je umožněno pohybovat se libovolným směrem po scéně. Engine proto musí dynamicky generovat svět na základě hráčovy pozice. Části světa, které hráč opustil a jsou mimo jeho vykreslovací vzdálenost budou uvolněny z paměti. Pro optimální běh na hardwaru s různou výkoností bude možné zvětšit, či zmenšit vykreslovanou oblast.
+Hráči bude umožněno pohybovat se libovolným směrem po scéně. Engine proto musí dynamicky generovat svět na základě hráčovy pozice. Části světa, které hráč opustil a jsou mimo jeho vykreslovací vzdálenost, budou uvolněny z paměti. Pro optimální běh na hardwaru s různou výkonností bude možné zvětšit či zmenšit vykreslovanou oblast.
 
-Svět je generovaný na základě semínka. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným semínkem. Procedurální generátor bude vytvářet svět s různými biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu, nebo exportovat do souboru.
+Svět je generovaný na základě seedu -- semínka. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným seedem. Procedurální generátor bude vytvářet svět, co nejvíce připomínající venkovní prostředí, jaké lze nalézt na Zemi. Svět bude obsahovat různé biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu nebo exportovat do souboru.
 
 
 \chapter{Technologie}
