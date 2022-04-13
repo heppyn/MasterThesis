@@ -82,21 +82,21 @@ Svět je generovaný na základě seedu -- semínka. Všechny části světa mus
 
 \chapter{Technologie}
 
-Na trhu se nachází celá řada herních enginů, jejichž cenové politiky umožňují vytvářet hry jak nezávislým vývojářům, kteří mohou využít enginy, dostupné zcela zdarma jako je Godot, Cocos2D. Nebo jsou zpoplatněné autorskými poplatky při dosažení zisku, jako je CryEngine, Unreal Engine, Unity~\cite{engines}. Herní studia často využívají placených licencí, zajišťujících podporu od tvůrce enginu.
+Na trhu se nachází celá řada herních enginů, jejichž cenové politiky umožňují vytvářet hry jak nezávislým vývojářům, kteří mohou využít enginy dostupné zcela zdarma jako je Godot či Cocos2D. Nebo jsou zpoplatněné autorskými poplatky při dosažení zisku, jako je CryEngine, Unreal Engine či Unity~\cite{engines}. Herní studia často využívají placených licencí, zajišťujících podporu od tvůrce enginu.
 
-Hry s voxelovou grafikou nemusejí vznikat jen v enginech pro ně tvořených, ale i v enginech vykreslujících polygonovou grafiku. Jejich výhodou je rozsah projektů, které díky nim mohou vzniknout. To vede k větším investicím a~aktivnějšímu vývoji. Tyto enginy poskytují komplexnější sadu nástrojů pro vývoj a na trhu převažují nad enginy vykreslující specifický druh grafiky.
+Hry s voxelovou grafikou nemusejí vznikat jen v enginech pro ně tvořených, ale i v enginech vykreslujících polygonovou grafiku. Jejich výhodou je rozsah projektů, které díky nim mohou vzniknout. To vede k větším investicím a~aktivnějšímu vývoji. Tyto enginy poskytují komplexnější sadu nástrojů pro vývoj a na trhu převažují nad enginy vykreslujícími specifický druh grafiky.
 
-I přesto na trhu existují voxelové enginy. Jedním ze zástupců open source projektů je voxel.js, určený pro vývoj her běžících v prohlížeči. Jak název napovídá, vývoj her probíhá v java scriptu~\cite{voxel_js}.
+I přesto na trhu existují enginy voxelové. Jedním ze zástupců open source projektů je voxel.js, určený pro vývoj her běžících v prohlížeči. Jak název napovídá, vývoj her probíhá v JavaScriptu~\cite{voxel_js}.
 
-Placeným zástupce je Voxel Farm~\cite{voxel_farm}. Jeho výhodou je výkonnost a možnost integrace s Unity nebo Unreal enginem. Zatímco ve voxel.js lze vytvářet hry podobné Minecraftu, Voxel Farm umožňuje práci s menšími voxely, díky němuž může svět vypadat více fotorealisticky. Hráč je do světa vtažen díky možnosti destrukce terénu a interakce s objekty, probíhající na úrovni voxelů. Tato vlastnost je velice zajímavá a přitahuje proto studia jako je EA nebo Take-Two Interactive~\cite{voxel_engines}.
+Placeným zástupce je Voxel Farm~\cite{voxel_farm}. Jeho výhodou je výkonnost a mož-nost integrace s Unity nebo Unreal enginem. Zatímco ve voxel.js lze vytvářet hry podobné Minecraftu, Voxel Farm umožňuje práci s menšími voxely, díky němuž může svět vypadat více fotorealisticky. Hráč je do světa vtažen díky možnosti destrukce terénu a interakce s objekty, probíhající na úrovni voxelů. Tato vlastnost je velice cenná a přitahuje proto studia jako je EA nebo Take-Two Interactive~\cite{voxel_engines}.
 
 \section{Architektura herních enginů}
 
-Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižšími vrstvami. Obecný engine se může skládat z těchto vrstev, seřazených od nejnižší, po nejvyšší~\cite{gea_engine_arch}.
+Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižšími vrstvami. Obecný engine se může skládat z těchto vrstev, seřazených od nejnižší, po nejvyšší~\cite{gea_engine_arch}:
 
 \begin{enumerate}
 
-\item Hardware --- representuje platformu, na které výsledná hra poběží. PC, Xbox, PS, iPhone, Switch.
+\item Hardware --- reprezentuje platformu, na které výsledná hra poběží. PC, Xbox, PS, iPhone, Switch.
 
 \item Ovladače --- odstiňují operační systém od detailů komunikace s HW. \mbox{NVidia}, Realtek, Intel HD.
 
@@ -106,7 +106,7 @@ Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižší
 
 \item Nezávislost na platformě --- obaluje systémová volání. Zajišťuje přenos-nost mezi platformami. Souborový systém, primitivní datové typy, vlákna.
 
-\item Hlavní systémy --- zajišťují základní funkce enginu. Asserce, matematika, náhodná čísla, alokátory, textové řetězce.
+\item Hlavní systémy --- zajišťují základní funkce enginu. Aserce, matematické funkce, náhodná čísla, alokátory, textové řetězce.
 
 \item Moduly --- komplexní systémy zastřešující jednotlivé oblasti enginu. Vykreslování, manažer scény, manažer zdrojů, fyzika, multiplayer.
 
@@ -115,46 +115,46 @@ Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižší
 \end{enumerate}
 
 \section{OpenGL}
-K interakci s grafickou kartou bylo zvoleno OpenGL vyvíjené skupinou Khronos. Pro vývoj byla zvolena stabilní verze 4.6, vydaná v roce 2017. Tato verze přináší pokročilé funkce, využívané v shaderech, ale je na trhu dostatečně dlouho, aby byla podporována většinou moderních grafických karet.
+K interakci s grafickou kartou bylo zvoleno OpenGL vyvíjené skupinou Khronos. Pro vývoj byla zvolena stabilní verze 4.6, vydaná v roce 2017. Tato verze přináší pokročilé funkce využívané v shaderech, ale je na trhu dostatečně dlouho, aby byla podporována většinou moderních grafických karet.
 
 \subsection{Vykreslovací řetězec}
-OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při spuštění programu (např.: způsob mísení barev, povolení testu hloubky\dots). Některé se musí měnit podle dat, které se mají vykreslit (např.: face culling). Grafická karta má před každým voláním pro vykreslení scény uložena data objektů ve svých bufferech. Přiřazené textury do texturovacích jednotek. Nastavené proměnné shaderů a shadery, které se mají pro vykreslení použít. Tyto parametry představují stav OpenGL, podle něhož se vykreslí scéna. Vykreslení může probíhat ve více krocích -- vykreslovací příkaz OpenGL je zavolán několikanásobně. Při každém volání proběhnou následující kroky~\cite{kronos_render}:
+OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při spuštění programu (např.: způsob mísení barev, povolení testu hloubky\dots). Některé se musí měnit podle dat, které se mají vykreslit (např. face culling). Grafická karta má před každým voláním pro vykreslení scény uložena data objektů ve svých bufferech, přiřazené textury do texturovacích jednotek, nastavené proměnné shaderů a shadery, které se mají pro vykreslení použít. Tyto parametry představují stav OpenGL, podle něhož se vykreslí scéna. Vykreslení může probíhat ve více krocích -- vykreslovací příkaz OpenGL je zavolán několikanásobně. Při každém volání proběhnou následující kroky~\cite{kronos_render}:
 
 \begin{enumerate}
-\item Specifikace vrcholů --- Načtení formátu vrcholů a předání dat, která budou zpracována dále v řetězci. 
+\item Specifikace vrcholů --- načtení formátu vrcholů a předání dat, která budou zpracována dále v řetězci. 
 
-\item Vertex shader --- Provede zpracování vrcholu na základě uživatelem specifikovaného programu a předá ho k dalšímu zpracování. Zpracován může být pouze jeden vrchol a ten musí být předán do dalšího kroku. Poskytnutí vertex shaderu je povinné.
+\item Vertex shader --- provede zpracování vrcholu na základě uživatelem specifikovaného programu a předá ho k dalšímu zpracování. Zpracován může být pouze jeden vrchol a ten musí být předán do dalšího kroku. Poskytnutí vertex shaderu je povinné.
 
-\item Teselace --- Nepovinný krok, který může rozdělit primitivum (trojúhelník, úsečku\dots) na několik menších primitiv~\cite{kronos_tess}.
+\item Teselace --- nepovinný krok, který může rozdělit primitivum (trojúhelník, úsečku,~\dots) na několik menších primitiv~\cite{kronos_tess}.
 
-\item Geometry shader --- Uživatelem definovaný program, zpracovávající primitiva. Výstupem je nula nebo více primitiv. Vstupní a výstupní primitiva musí být přesně definovaná. Geometry shader může změnit jeho geometrii, provést transformaci souřadnic\dots Tento krok není povinný.
+\item Geometry shader --- uživatelem definovaný program, zpracovávající primitiva. Výstupem je nula nebo více primitiv. Vstupní a výstupní primitiva musí být přesně definovaná. Geometry shader může změnit jeho geometrii, provést transformaci souřadnic\dots Tento krok není povinný.
 
-\item Post-processing vrcholů --- Složená primitiva (např.: pruh trojúhelníků) jsou převedena na jednoduchá primitiva (úsečky, body, trojúhelníky). Primitiva jejichž část se nachází mimo prostor obrazovky jsou rozdělena, aby vznikla nová, jež jsou uvnitř prostoru obrazovky. Trojúhelníková primitiva mohou být vyřazena, pokud nemíří k pozorovateli. Všechna nová primitiva jsou uložena do výstupních bufferů pro další zpracování.
+\item Post-processing vrcholů --- složená primitiva (např. pruh trojúhelníků) jsou převedena na jednoduchá primitiva (úsečky, body, trojúhelníky). Primitiva, jejichž část se nachází mimo prostor obrazovky, jsou rozdělena, aby vznikla nová, jež jsou uvnitř prostoru obrazovky. Trojúhelníková primitiva mohou být vyřazena, pokud nemíří k pozorovateli. Všechna nová primitiva jsou uložena do výstupních bufferů pro další zpracování.
 
-\item Rasterizace --- Primitiva, která se dostanou do této fáze jsou převedena na fragmenty. Fragment je soubor hodnot obsahující výstupy předchozích shaderů. Jejich hodnota je nastavena interpolací hodnot vrcholů, z kterých se primitivum skládá. Každý fragment obsahuje pozici v~prostoru obrazovky~\cite{kronos_frag}.
+\item Rasterizace --- primitiva, která se dostanou do této fáze, jsou převedena na fragmenty. Fragment je soubor hodnot obsahující výstupy předchozích shaderů. Jejich hodnota je nastavena interpolací hodnot vrcholů, z kte-rých se primitivum skládá. Každý fragment obsahuje pozici v~prostoru obrazovky~\cite{kronos_frag}.
 
-\item Fragment shader --- Výstupem fragment shaderu je list barev, které budou zapsány do výstupních bufferů, hodnota hloubky a hodnota šablony (stencil value). Fragment shader může být definován uživatelem. Pokud není, hodnota barev není definovaná, je pouze zapsána hodnota hloubky a šablony.
+\item Fragment shader --- výstupem fragment shaderu je list barev, které budou zapsány do výstupních bufferů, hodnota hloubky a hodnota šablony (stencil value). Fragment shader může být definován uživatelem. Pokud není, hodnota barev není definovaná, je pouze zapsána hodnota hloubky a šablony.
 
-\item Operace provedené na vzorcích (Per-Sample Operations) --- Výstupní data fragmentu jsou podrobena sérii testů (mohou být specifikované uživatelem, např.: hloubkový test), které je mohou vyřadit z podílení se na výsledné barvě pixelu. Pokud projdou, je provedeno míchání barev s~barvami, které již obsahuje framebuffer.
+\item Operace provedené na vzorcích (Per-Sample Operations) --- výstupní data fragmentu jsou podrobena sérii testů (mohou být specifikované uživatelem, např.: hloubkový test), které je mohou vyřadit z podílení se na výsledné barvě pixelu. Pokud projdou, je provedeno míchání barev s~barvami, které již obsahuje framebuffer.
 \end{enumerate}
 
 \subsection{Podpůrné knihovny}
-OpenGL je pouze specifikace, implementovaná výrobci grafických karet. Implementace je napsaná v jazyce C. A není specifická pro jeden operační systém. Operace jako je vytváření okna, zpracování uživatelského vstupu, se liší v~závis-losti na operačním systému a OpenGL od nich abstrahuje. Z tohoto důvodu je potřeba využít další knihovnu, zajišťující tyto funkce. K tomuto účelu byla vybrána knihovna GLFW, vytvářející korektní kontext -- stav OpenGL~\cite{lopgl_window}.
+OpenGL je pouze specifikace, implementovaná členy skupiny Khronos. Mezi členy patří výrobci grafických karet, vývojáři operačních systémů, tvůrci her, \dots \cite{kronos_members} Implementace je napsaná v jazyce C a není specifická pro jeden operační systém. Operace jako je vytváření okna, zpracování uživatelského vstupu, se liší v~závislosti na operačním systému a OpenGL od nich abstrahuje. Z tohoto důvodu je potřeba využít další knihovnu, zajišťující tyto funkce. K tomuto účelu byla vybrána knihovna GLFW, vytvářející korektní kontext -- stav OpenGL~\cite{lopgl_window}.
 
 Ovladače grafických karet jsou poskytovány výrobci karet. OpenGL je pouze standard, definující signaturu funkcí a jejich chování. Při překladu kódu proto není známé, jaký ovladač bude použit, a lokace funkcí se musí zjistit až za běhu programu. Funkce pro zjišťování adres funkcí jsou závislé na operačním systému. Skupina Khronos proto doporučuje využít jednu z knihoven pro načtení funkcí OpenGL~\cite{kronos_load_lib}. K tomuto účelu byla využita knihovna GLAD.
 
 \subsection{Jazyk pro psaní shaderů}
-K programování shaderů byl zvolen OpenGL Shading Language -- GLSL, jakožto hlavní jazyk určený pro OpenGL nevyžaduje žádné extenze. GLSL je jazyk podobný C – obsahuje stejné strukturální prvky (smyčky, větvení\dots). Avšak rozšiřuje datové typy C například o vektory, matice, textury\dots ~a~obsahuje vlastní standardní knihovnu~\cite{kronos_glsl}.
+K programování shaderů byl zvolen OpenGL Shading Language -- GLSL, jakožto hlavní jazyk určený pro OpenGL nevyžaduje žádné rozšíření. GLSL je jazyk podobný C – obsahuje stejné strukturální prvky (smyčky, větvení, \dots). Avšak rozšiřuje datové typy C například o vektory, matice, textury\dots ~a~obsahuje vlastní standardní knihovnu~\cite{kronos_glsl}.
 
 Poslední vydaná verze je shodná s verzí OpenGL (4.6). Pro vývoj je však možné používat různé verze v závislosti na požadovaných funkcích. Použitím nižší verze se teoreticky rozšíří počet kompatibilních zařízení, v praxi je však omezen verzí OpenGL, kterou používá engine.
 
 \section{Další knihovny}
 
-Projekt obsahuje knihovny řešící specifické problémy. První z nich je OpenGL Mathematics -- GLM. Matematická knihovna určená pro práci s OpenGL. GLM poskytuje třídy a funkce navržené a implementované se stejnými jmenný-mi konvencemi jako GLSL. Neomezuje se však pouze na funkcionalitu GLSL. Poskytuje funkce na transformaci matic, kvateriony, balení dat, náhodná čísla, šum, atd\dots~\cite{glm_main}
+Projekt obsahuje knihovny řešící specifické problémy. První z nich je OpenGL Mathematics -- GLM. Matematická knihovna určená pro práci s OpenGL. GLM poskytuje třídy a funkce navržené a implementované se stejnými jmenný-mi konvencemi jako GLSL. Neomezuje se však pouze na funkcionalitu GLSL. Poskytuje funkce na transformaci matic, kvaterniony, komprese dat, náhodná čísla, šum, atd\dots~\cite{glm_main}
 
-Další knihovnou je stb image sloužící k načítání obrázků. Knihovna má omezený počet typů souborů, s kterými dokáže pracovat. Její použití je však snadné a engine používá pouze dva typy obrázků – JPEG a PNG. Její autor o ní říká, že je primárně určená pro herní vývojáře a další osoby, které se dokáží vyhnout problematickým obrázkům a potřebují pouze jednoduché rozhraní~\cite{stb_image}.
+Další knihovnou je \textit{stb image} sloužící k načítání obrázků. Knihovna má omezený počet typů souborů, s kterými dokáže pracovat. Její použití je však snadné a engine používá pouze dva typy obrázků – JPEG a PNG. Její autor o ní říká, že je primárně určená pro herní vývojáře a další osoby, které se dokáží vyhnout problematickým obrázkům a potřebují pouze jednoduché rozhraní~\cite{stb_image}.
 
-Pro generování terénu byl využit Perlinův šum implementovaný knihovnou siv::PerlinNoise~\cite{perlin}. Knihovna dokáže generovat 1D, 2D nebo 3D šum. Obsahuje taktéž podporu pro oktávový šum. Důležitou součástí knihovny je možnost poskytnout vlastní semínko, na jehož základě je šum generován.
+Pro generování terénu bude využit Perlinův a Simpex šum implementovaný knihovnami  \textit{siv::PerlinNoise}~\cite{perlin} a \textit{SimplexNoise}~\cite{simplex_lib}. Knihovny dokáží generovat 1D, 2D nebo 3D šum. Obsahují taktéž podporu pro oktávový šum. Důležitou součástí knihoven je možnost poskytnout vlastní seed, na jehož základě je šum generován.
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % Architektura
@@ -1368,7 +1368,7 @@ Whittakerův systém neobsahuje všechny kombinace teplot a srážek. Generátor
 
 \todo{tabulka biotopu}
 
-Pokud se v políčku tabulky nachází dva biotopy, generátor z nich vybere jeden, pomocí 2D šumu a pozice na mapě. Biotopy by měly pokrývat velké oblasti terénu. Je proto nutné zvolit vhodné měřítko šumu, aby nedocházelo k opakovaným změnám biotopů v jedné oblasti.
+kompresePokud se v políčku tabulky nachází dva biotopy, generátor z nich vybere jeden, pomocí 2D šumu a pozice na mapě. Biotopy by měly pokrývat velké oblasti terénu. Je proto nutné zvolit vhodné měřítko šumu, aby nedocházelo k opakovaným změnám biotopů v jedné oblasti.
 
 \subsection{Mapa srážek}
 
