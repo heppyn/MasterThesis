@@ -162,7 +162,7 @@ Pro generování terénu bude využit Perlinův a Simpex šum implementovaný kn
 
 \chapter{Architektura}
 
-Engine je rozdělen do několika modulů a sub modulů, seskupujících stejnou funkcionalitou. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
+Engine je rozdělen do několika modulů a sub modulů, seskupujících funkcionalitu stejné kategorie. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/architecture2}
@@ -171,7 +171,7 @@ Engine je rozdělen do několika modulů a sub modulů, seskupujících stejnou 
 
 Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpracovávání a generování objektů na základě L-systému. Třídy zajišťující implementaci, s kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
 
-Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
+Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu~\cite{ecs}. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a~jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
 
 Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
 
@@ -179,7 +179,7 @@ Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou funkcionalitu pou�
 
 Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
 
-Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots ~Hlavní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden, či více objektů najednou.
+Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots ~Hlav-ní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden či více objektů najednou.
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % Vykreslení scény
