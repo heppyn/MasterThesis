@@ -187,7 +187,7 @@ Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslo
 
 \chapter{Vykreslení scény}
 
-Vykreslovací engine má za úkol převod scény definované v 3D prostoru, na 2D plochu zobrazovacího zařízení hráče. Tento proces začíná na CPU, kde jsou herní objekty převedeny na data (matice), která jsou poslána grafické kartě. Zde jsou za pomocí série kroků transformována na zobrazitelné pixely. Tyto kroky jsou vysoce specializované a výstup každého z nich je použit jako vstup pro další. 
+Vykreslovací engine má za úkol převod scény definované v 3D prostoru na 2D plochu zobrazovacího zařízení hráče. Tento proces začíná na CPU, kde jsou herní objekty převedeny na data (matice), která jsou poslána grafické kartě. Zde jsou za pomocí série kroků transformována na zobrazitelné pixely. Tyto kroky jsou vysoce specializované a výstup každého z nich je použit jako vstup pro další. 
 
 Tyto kroky je možné masivně paralelizovat a využít tisíců jader, které může grafická karta obsahovat. Každé jádro spouští malý program, pro každý krok vykreslovacího řetězce. Tyto programy jsou nazývané shadery. Některé ze shaderů může definovat vývojář a nahradit nimi existující výchozí shadery~\cite{lopgl_triangle}.
 
@@ -207,11 +207,11 @@ Převod herního objektu na matici:
 for (const auto& o : obs) {
     assert(o.HasComponent<Components::Transform>());
     auto model =
-        o.GetComponent<Components::Transform>().ModelMat();
+      o.GetComponent<Components::Transform>().ModelMat();
 
     assert(o.HasComponent<Components::SpritesheetTex>());
     const auto& texPos = 
-        o.GetComponent<Components::SpritesheetTex>().GetTexPos();
+      o.GetComponent<Components::SpritesheetTex>().GetTexPos();
     Helpers::Math::PackVecToMatrix(model, texPos);
 
     buffer[cube]->push_back(model);
@@ -226,7 +226,7 @@ for (const auto& o : obs) {
 
 \subsection{Instancing}
 
-Herní scéna obsahuje velké množství objektů se stejnou geometrií (např. krychle), s různou transformací vůči počátku světa. Každá krychle je složena z 12 trojúhelníků. Její vykreslení je téměř okamžité. Pokud by pro každou z nich bylo voláno samostatné vykreslení (draw call), velice rychle doje k drastickému snížení výkonu (komunikace s kartou přes sběrnici, uložení dat do patřičných bufferů\dots). Lepší řešení je poslat všechna data kartě najednou a ty následně vykreslit pomocí stejné geometrie. Toto řešení se nazývá instancing~\cite{lopgl_instancing}.
+Herní scéna obsahuje velké množství objektů se stejnou geometrií (např. krych-le), s~různou transformací vůči počátku světa. Každá krychle je složena z~12 trojúhelníků. Pokud by pro každou z~nich bylo voláno samostatné vykreslení (draw call), velice rychle dojde k~drastickému snížení výkonu (komunikace s kartou přes sběrnici, uložení dat do patřičných bufferů\dots). Lepší řešení je poslat všechna data kartě najednou a~ty následně vykreslit pomocí stejné geometrie. Toto řešení se nazývá instancing~\cite{lopgl_instancing}.
 
 Scéna umožňuje definovat vlastní geometrie -- krychle, krychle bez podstav, nebo jakákoliv jiná kombinace stěn krychle. Pro každou z nich alokuje místo na grafické kartě, uloží do něj data objektů a následně samostatně vykreslí každou z nich.
 
@@ -246,7 +246,7 @@ for (const auto& chunk : instancesData) {
 CubeRenderers_[cube].GetDefaultMesh().BindBatchAttribPtrs();
 \end{verbatim}
 
-Rozdílné geometrie jsou užitečné, pokud chceme definovat krychli s rozdílnými podstavami a stěnami. Na obrázku~\ref{fig:block_composition}, lze vidět blok trávy složený ze tří částí.
+Rozdílné geometrie jsou užitečné, pokud chceme definovat krychli s rozdíl-nými podstavami a stěnami. Na obrázku~\ref{fig:block_composition}, lze vidět blok trávy složený ze tří částí.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/block_composition}
@@ -255,7 +255,7 @@ Rozdílné geometrie jsou užitečné, pokud chceme definovat krychli s rozdíln
 
 \section{Společná data objektů}
 
-Instancing umožňuje grafické kartě používat společná data pro všechny vykreslované objekty. Jeho protějškem v objektovém světe je návrhový vzor Flyweight.
+Instancing umožňuje grafické kartě používat společná data pro všechny vykreslované objekty. Jeho protějškem v objektovém světe je návrhový vzor Flyweight~\cite{gpp_fly}.
 
 Pokud má být objekt vykreslitelný musí obsahovat komponentu \texttt{Transform} (určující jeho pozici a velikost) a komponentu \texttt{Mesh} (představující geometrii objektu) -- obrázek~\ref{fig:go_components}.
 
@@ -264,18 +264,18 @@ Pokud má být objekt vykreslitelný musí obsahovat komponentu \texttt{Transfor
 	\caption[Komponenty herního objektu]{Komponenty herního objektu}\label{fig:go_components}
 \end{figure}
 
-\texttt{Mesh} obsahuje informace o vrcholech (\texttt{Vertex}) vykreslovaných trojúhelníků -- pozici na scéně, normálový vektor k úsečce mezi dvěma vrcholy trojúhelníku, pozici na textuře. A pole indexů, které říká, z jakých vrcholů jsou trojúhelníky složeny. Každý vrchol v má velikost $8 * 4 = 32$ B a \texttt{Mesh} jich obsahuje $6 * 4$. Každá stěna krychle má čtyři různé vrcholy\footnote{Krychle má 8 vrcholů. Vrcholy jednotlivých stěn se ale liší v normálovém vektoru a~pozicí na textuře.}. Pole indexů má velikost $12 * 3 * 4$~B (počet trojúhelníků, počet vrcholů trojúhelníku, velikost \texttt{unsigned}). Celková velikost \texttt{Mesh}e představující krychli je:
+\texttt{Mesh} obsahuje informace o vrcholech (\texttt{Vertex}) vykreslovaných trojúhelníků -- pozici na scéně, normálový vektor k úsečce mezi dvěma vrcholy trojúhelníku, pozici na textuře. A pole indexů, které říká, z jakých vrcholů jsou trojúhelníky složeny. Každý vrchol v má velikost $8 \cdot 4 = 32$ B a \texttt{Mesh} jich obsahuje $6 \cdot 4$. Každá stěna krychle má čtyři různé vrcholy\footnote{Krychle má 8 vrcholů. Vrcholy jednotlivých stěn se ale liší v normálovém vektoru a~pozicí na textuře.}. Pole indexů má velikost $12 \cdot 3 \cdot 4$~B (počet trojúhelníků, počet vrcholů trojúhelníku, velikost \texttt{unsigned}). Celková velikost \texttt{Mesh}e představujícího krychli je:
 
-\[8 * 4 * 6 * 4 + 12 * 3 * 4 = 912\; B\]
+\[8 \cdot 4 \cdot 6 \cdot 4 + 12 \cdot 3 \cdot 4 = 912\; B\]
 
-Pokud má být engine schopný vykreslovat desetitisíce objektů je tato paměťová náročnost neúnosná. Komponentu \texttt{Mesh} není možné odebrat z herního objektu, protože obsahuje pozici na textuře, lišící se mezi objekty. Pozice na textuře představuje čtverec, který bude vybrán z textury a aplikován na povrch krychle. Všechny objekty mají texturu čtverce. Díky tomu je možné definovat čtverec na počátku textury a jeho posun uložit do samostatné komponenty -- \texttt{SpritesheetTex}. Toto nové rozložení je znázorněno na obrázku~\ref{fig:go_components_fw}.
+Pokud má být engine schopný vykreslovat desetitisíce objektů, je tato paměťová náročnost neúnosná. Komponentu \texttt{Mesh} není možné odebrat z her-ního objektu, protože obsahuje pozici na textuře, lišící se mezi objekty. Pozice na textuře představuje čtverec, který bude vybrán z textury a aplikován na povrch krychle. Všechny objekty mají texturu čtverce. Díky tomu je možné definovat čtverec na počátku textury a jeho posun uložit do samostatné komponenty -- \texttt{SpritesheetTex}. Toto nové rozložení je znázorněno na obrázku~\ref{fig:go_components_fw}.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/go_components_fw_2}
 	\caption[Použití vzoru Flyweight]{Použití vzoru Flyweight}\label{fig:go_components_fw}
 \end{figure}
 
-Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\texttt{float} je zvolen pro jednodušší komunikaci s grafickou kartou –- všechna předaná data mají formát float). Komponenta v paměti zabírá pouhých 8 B. Velikost herního byla redukována o 904 B.
+Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\texttt{float} je zvolen pro jednodušší komunikaci s grafickou kartou -- všechna předaná data mají formát float). Komponenta v paměti zabírá pouhých 8 B. Velikost herního objektu byla redukována o 904 B.
 
 \texttt{Mesh} není dále používána jako komponenta herního objektu. Její implementace ze jmenného prostoru \texttt{Renderer}, kterou komponenta \texttt{Mesh} obsahuje jako svůj atribut, je použita pro vykreslení všech objektů se stejnou geometrií najednou. Vykreslení objektů zajišťuje třída \texttt{CubeRenderer}, viz obrázek~\ref{fig:go_components_fw}.
 
@@ -284,7 +284,7 @@ Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\tex
 
 \section{Vyřazení neviditelných částí objektu}
 
-Část scény tvoří krychle mající všech šest stěn vyplněných neprůhlednou texturou. Při pohledu na krychli může hráč vidět maximálně tři její stěny najednou (z určitých úhlů pouze jednu nebo dvě). Minimálně 50~\% každé krychle je vykreslováno zbytečně. OpenGL je schopno vyřadit stěny, které směřují pryč od hráče, z vykreslovacího procesu a snížit počet volání fragment shaderu. Tato technika se nazývá face culling~\cite{lopgl_faceculling}.
+Část scény tvoří krychle mající všech šest stěn vyplněných neprůhlednou texturou. Při pohledu na krychli může hráč vidět maximálně tři její stěny najednou (z určitých úhlů pouze jednu nebo dvě). Minimálně 50~\% každé krychle je vykreslováno zbytečně. OpenGL je schopno vyřadit stěny které směřují pryč od hráče z vykreslovacího procesu a snížit počet volání fragment shaderu. Tato technika se nazývá face culling~\cite{lopgl_faceculling}.
 
 K rozpoznání stěn (trojúhelníků), které směřují pryč od hráče OpenGL používá pořadí jeho vrcholů. Vrcholy mohou být definované ve směru nebo protisměru hodinových ručiček  -- obrázek~\ref{fig:winding_order}. Při pohledu na grafické primitivum z druhé strany, se změní pořadí jeho vrcholů. V~základním nastavení OpenGL, jsou primitiva s vrcholy definovanými po směru hodinových ručiček, považována za směřující k hráči.
 
@@ -299,7 +299,7 @@ Tato technika není v základním nastavení OpneGL zapnutá. Musí se povolit z
 glEnable(GL_CULL_FACE);
 \end{verbatim}
 
-Pro objekty, které nemají všech šest stěn nebo mají průhlednou texturu, je nutné vypnou face culling. Hráči se zobrazí i vnitřek objektu, který by jinak nebyl vidět. Příkladem je vykreslování trávy -- obrázek~\ref{fig:face_culling}. Na pravém bloku je tráva vykreslena se zapnutým face cullingem. Na levém bloku je face culling vypnutý.
+Pro objekty, které nemají všech šest stěn nebo mají průhlednou texturu, je nutné vypnout face culling. Hráči se zobrazí i vnitřek objektu, který by jinak nebyl vidět. Příkladem je vykreslování trávy -- obrázek~\ref{fig:face_culling}. Na pravém bloku je tráva vykreslena se zapnutým face cullingem. Na levém bloku je face culling vypnutý.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/face_culling}
@@ -308,7 +308,7 @@ Pro objekty, které nemají všech šest stěn nebo mají průhlednou texturu, j
 
 \section{Průhledné a poloprůhledné textury}
 
-Při vykreslování textur majících průhlednost (alfa $<$ 1) může nastat několik problémů. Prvním z nich je pořadí vykreslování objektů. Pokud má textura průhlednost, musí se její barva skombinovat s barvami textur, které překrývá. Na obrázku~\ref{fig:alpha} jsou textury vykreslovány postupně z pravého dolního rohu, po řádcích směrem k levému hornímu rohu. Lze si všimnou, že průhledná část trávy je korektně smíchána s~barvou bloku pod ní (je vykreslen první). Bloky v pozadí obrázku jsou překryté modrou barvou v~místech, kde je textura trávy průhledná.
+Při vykreslování textur majících průhlednost (alfa $<$ 1) může nastat několik problémů. Prvním z nich je pořadí vykreslování objektů. Pokud má textura průhlednost, musí se její barva zkombinovat s barvami textur, které překrývá. Na obrázku~\ref{fig:alpha} jsou textury vykreslovány postupně z pravého dolního rohu, po řádcích směrem k levému hornímu rohu. Lze si všimnout, že průhledná část trávy je korektně smíchána s~barvou bloku pod ní (je vykreslen první). Bloky v pozadí obrázku jsou překryté modrou barvou v~místech, kde je textura trávy průhledná.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/alpha}
@@ -319,14 +319,14 @@ Tento jev nastává kvůli použití depth bufferu, ten šetří výpočetní v�
 
 Toto řešení vyžaduje řazení objektů na scéně podle jejich vzdálenosti od kamery. Poloha kamery se s~pohybem hráče neustále mění a řazení objektů by snižovalo výkonost.
 
-Avšak objekty bez průhledných části překryjí všechny objekty nehledě na průhlednost. Scénu tak lze rozdělit na dvě části. A objekty bez průhlednosti vykreslit jako první. Na obrázku~\ref{fig:alpha_cut_off} je tato technika implementována. Barva průhledné části trávy je korektně smíchána s barvou bloku v pozadí.
+Avšak objekty bez průhledných části překryjí všechny objekty nehledě na průhlednost. Scénu tak lze rozdělit na dvě části a objekty bez průhlednosti vykreslit jako první. Na obrázku~\ref{fig:alpha_cut_off} je tato technika implementována. Barva průhledné části trávy je korektně smíchána s barvou bloku v pozadí.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/alpha_cut_off}
 	\caption[Zastínění průhlednou částí textury]{Zastínění průhlednou částí textury}\label{fig:alpha_cut_off}
 \end{figure}
 
-Problém s pořadím textur obsahujících průhlednost stále přetrvává. Na obrázku~\ref{fig:alpha_cut_off} lze jasně vidět průhlednou část textury trávy, překrývající trávu v pozadí. Pro textury mající části úplně průhledné nebo úplně neprůhledné lze problém vyřešit ve fragment shaderu. Všechny framenty, mající průhlednost menší, než stanovená mez, budou vyřazeny z vykreslovacího řetězce.
+Problém s pořadím textur obsahujících průhlednost stále přetrvává. Na obrázku~\ref{fig:alpha_cut_off} lze jasně vidět průhlednou část textury trávy, překrývající trávu v pozadí. Pro textury mající části úplně průhledné nebo úplně neprůhledné lze problém vyřešit ve fragment shaderu. Všechny framenty mající průhlednost menší, než stanovená mez, budou vyřazeny z vykreslovacího řetězce.
 
 \begin{verbatim}
 float alpha = vec4(texture(texture_diffuse1, TexCoord)).a;
