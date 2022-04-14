@@ -1363,12 +1363,10 @@ K simulaci rozložení biotopů byl využit Whittakerův systém. Robert Whittak
 
 Whittakerův systém nedefinuje trvale zaledněné oblasti, které generátor přidává.
 
-\subsection{Tabulka biotopů}
-Whittakerův systém neobsahuje všechny kombinace teplot a srážek. Generátor terénu tento systém zjednodušuje a rozšiřuje trojúhelníkový tvar na čtverec, tabulka xx. Díky tomu dokáže generátor zpracovat každou kombinací vstupů. Teplota a srážky jsou rozděleny do 10 úrovní.
+\subsection{Výběr biotopu}
+Whittakerův systém neobsahuje všechny kombinace teplot a srážek. Generátor terénu tento systém zjednodušuje a rozšiřuje trojúhelníkový tvar na čtverec. Teplota a srážky jsou rozděleny na 10 úrovní a biotopy jsou poměrově rozděleny přes všechny hodnoty srážek. Díky tomu dokáže generátor zpracovat každou kombinací vstupů.
 
-\todo{tabulka biotopu}
-
-kompresePokud se v políčku tabulky nachází dva biotopy, generátor z nich vybere jeden, pomocí 2D šumu a pozice na mapě. Biotopy by měly pokrývat velké oblasti terénu. Je proto nutné zvolit vhodné měřítko šumu, aby nedocházelo k opakovaným změnám biotopů v jedné oblasti.
+Pokud se v políčku tabulky nachází dva biotopy, generátor z nich vybere jeden, pomocí 2D šumu a pozice na mapě. Biotopy by měly pokrývat velké oblasti terénu. Je proto nutné zvolit vhodné měřítko šumu, aby nedocházelo k opakovaným změnám biotopů v jedné oblasti.
 
 \subsection{Mapa srážek}
 
