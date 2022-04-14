@@ -1415,6 +1415,31 @@ Na mapě xx je zobrazené nové rozložení biotopů. Rovné přechody mezi biot
 
 Další faktorem ovlivňujícím teplotu je výška terénu. S rostoucí výškou klesá teplota. Předchozí ukázky terénu neobsahují žádný přechod biotopů způsobený výškou terénu. Krajina je převážně rovinatá a neobsahuje žádné pohoří. Tento nedostatek je popsán v následující sekci.
 
+\section{Rozmístění vegetace}
+
+Generátor simuluje přirozeně vznikající biotopy. Vegetaci je proto nutné rozmisťovat tak, aby nebyl patrný žádný vzor. Jakákoliv pravidelnost je viditelná a působí dojmem člověkem vysázeného lesa nebo sadu.
+
+Hustota vegetace je závislá na biotopu, ve kterém se nachází. Pro rozmís-tění trávy jsou definovány čtyři úrovně hustoty -- hustá, normální, řídká, žádná. Každá z nich říká, s jakou pravděpodobností bude na dané pozici růst tráva. K jejímu rozmístění je použit náhodný 3D šum.
+
+\begin{verbatim}
+case GrassDensity::Dense:
+    return Engine::Random::GetNoise0_1<float>(pos) > 0.2f;
+\end{verbatim}
+
+Náhodný šum je vhodný pro vegetaci mající velikost maximálně jednoho bloku, která může sousedit s vegetací na dalším bloku -- typicky traviny. Pro rozmístění stromů je potřeba větší kontrola nad jejich rozestupy. Při pozorování spojitého šumu si lze všimnout, že klesá a stoupá s nepravidelnou periodou. Tohoto lze využít a stromy umístit do ostrého lokálního maxima toho šumu. Tuto situaci ilustruje obrázek~\ref{fig:cactus}, využívající spojitý 1D šum, který určuje výšku terénu a rozmístění kaktusů.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/world_gen/cactus}
+	\caption[Využití spojitého šumu pro rozmístění vegetace]{Využití spojitého šumu pro rozmístění vegetace}\label{fig:cactus}
+\end{figure}
+
+Jak lze vidět z obrázku~\ref{fig:trees} vzdálenost mezi stromy (červené čtverce) lze snadno škálovat změnou měřítka (vydělením souřadnic) použité mapy šumu. Vzdálenosti mezi stromy jsou různě velké. V některých částech mohou růst stromy blízko sebe, v jiných je větší prostor beze stromů.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/world_gen/trees}
+	\caption[Odstranění rovných přechodů]{Odstranění rovných přechodů}\label{fig:trees}
+\end{figure}
+
 \section{Výška terénu}
 
 Perlinův šum umožňuje generovat terén, který pozvolně mění svou výšku. V~přírodě však existují hory, útesy, skály, které svůj výškový profil mění rapidně. Tohoto efektu není možné dosáhnout pouze za pomoci jednoho šumu.
