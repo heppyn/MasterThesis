@@ -1298,7 +1298,6 @@ unsigned Random::Get1dNoise(int x, unsigned seed) {
     mangledBits ^= (mangledBits >> 8);
     return mangledBits;
 }
-
 unsigned Random::Get2dNoise(int x, int y, unsigned seed) {
     return Get1dNoise(x + PRIME1 * y, seed);
 }
