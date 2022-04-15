@@ -1272,22 +1272,24 @@ Při porovnání scény~\ref{fig:identicke_stromy} ze začátku kapitoly si lze 
 
 \chapter{Procedurální generování terénu}
 
-Generování částí nebo celých herních světů může výrazně zvýšit rychlost vývoje a přinést různorodost terénu. Světy mohou být generovány před spuště-ním hry nebo až v průběhu hraní. Tyto dva přístupy kladou odlišné nároky procedurální generátor.
+Generování částí nebo celých herních světů může výrazně zvýšit rychlost vývoje a přinést různorodost terénu. Světy mohou být generovány před spuště-ním hry nebo až v průběhu hraní. Tyto dva přístupy kladou odlišné nároky na procedurální generátor.
 
-Při generování předem je možné využít sofistikovanějších technik, které zapříčiňují delší běh generátoru, nebo vyžadují znalost celé mapy. Pokud se například hra odehrává na ostrově je možné zvolit body na pobřeží, kde budou vyúsťovat řeky. A z nich následně vytvořit říční síť na základě sklonu terénu. Generátor běžící v průběhu hry si toto dovolit nemůže a musí každý kus terénu generovat nezávisle na jeho okolí.
+Při generování předem je možné využít sofistikovanějších technik, které zapříčiňují delší běh generátoru, nebo vyžadují znalost celé mapy. Pokud se například hra odehrává na ostrově je možné zvolit body na pobřeží, kde budou vyúsťovat řeky, a z nich následně vytvořit říční síť na základě sklonu terénu. Generátor běžící v průběhu hry si toto dovolit nemůže a musí každý kus terénu generovat nezávisle na jeho okolí.
 
-K využití maximálního potenciálu procedurálního generování a vytvoření unikátního světa pro každého hráče jsou využívány náhodné generátory čísel. Ty však nemohou být zcela náhodné. Pokud by hráč objevil horu a rozhodl se jí obejít z druhé strany. Musí se objevit na druhé straně hory. Generátory proto musí produkovat pokaždé stejnou sekvenci čísel.
+K využití maximálního potenciálu procedurálního generování a vytvoření unikátního světa pro každého hráče jsou využívány náhodné generátory čísel. Ty však nemohou být zcela náhodné. Pokud by hráč objevil horu a rozhodl se jí obejít z druhé strany. Musí se objevit na druhé straně hory. Generátory proto musí produkovat pokaždé stejnou sekvenci čísel -- PRNG (Pseudo Random Number Generator)~\cite{prng}.
 
-Místo náhodných generátorů čísel lze využít šumy. Šum v jistých aspektech připomíná hashovací funkce, ze vstupu produkují zdánlivě náhodný výstup. Šum je, avšak na rozdíl od nich schopen do výsledku zakomponovat semínko. Vstup může být například pozice na mapě, kde má být vygenerovaný strom. Pokud se však změní semínko hry, rozmístění stromů bude zcela odlišné.
+Nevýhodou PRNG je vnitřní stav, který se mění s každým vyprodukovaným číslem. Pro zaručení stejných výsledků musí být sekvence čísel použita pokaždé pro stejné operace, nebo musí být PRNG re-seedován.
+
+Místo PRNG lze využít šumy. Šum v jistých aspektech připomíná hashovací funkce, ze vstupu produkují zdánlivě náhodný výstup. Šum je, avšak na rozdíl od nich schopen do výsledku zakomponovat semínko. Vstup může být například pozice na mapě, kde má být vygenerovaný strom. Pokud se však změní seed hry, rozmístění stromů bude zcela odlišné.
 
 \section{Náhodný šum}
 
 Pro generování náhodného šumu mohou být použity hashovací funkce jako MD5 nebo SHA1. Jejich požadavky byly kladeny především na kvalitu, kvůli kryptografickému použití. Kvalita funkcí pro šum nemusí být takto dobrá, důraz je kladen především na rychlost. Engine používá implementaci Squirrela Eiserloha~\cite{sqr_noise}.
 
-Funkce transformuje vstupní číslo pomocí přičítání a násobení velkým prvočíslem, bitovým posuny a XORy. Po prvním vynásobení je k číslu přičteno semínko, výstup se tak na něm stává závislým. Pro vytvoření šumu ze souřadnic o více dimenzích jsou použita prvočísla 198491317 a 6542989, kterými jsou souřadnice na ose y a z vynásobeny a následně sečteny.
+Funkce transformuje vstupní číslo pomocí přičítání a násobení velkým prvočíslem, bitovým posuny a XORy. Po prvním vynásobení je k číslu přičten seed, výstup se tak na něm stává závislým. Pro vytvoření šumu ze souřadnic o více dimenzích jsou použita prvočísla 198491317 a 6542989, kterými jsou souřadnice na ose y a z vynásobeny a následně sečteny.
 
 \begin{verbatim}
-unsigned Random::Get1dNoise(int x, unsigned seed) {
+unsigned Random::Get1dNoise(int x, unsigned seed){
     auto mangledBits = static_cast<unsigned int>(x);
     mangledBits *= 0x68E31DA4;
     mangledBits += seed;
@@ -1298,10 +1300,10 @@ unsigned Random::Get1dNoise(int x, unsigned seed) {
     mangledBits ^= (mangledBits >> 8);
     return mangledBits;
 }
-unsigned Random::Get2dNoise(int x, int y, unsigned seed) {
+unsigned Random::Get2dNoise(int x, int y, unsigned seed){
     return Get1dNoise(x + PRIME1 * y, seed);
 }
-unsigned Random::Get3dNoise(int x, int y, int z, unsigned seed) {
+unsigned Random::Get3dNoise(int x, int y, int z, unsigned seed){
     return Get1dNoise(x + PRIME1 * y + PRIME2 * z, seed);
 }
 \end{verbatim}
@@ -1317,7 +1319,7 @@ Pokud má terén vypadat přirozeně, musí na sebe plynule navazovat. Použití
 
 Jedním ze šumů, jehož výstup se plynule mění je Perlinův šum, vyvinutým Kenem Perlinem v roce 1983, pro generování přirozeně vypadajících textur. Tuto texturu lze použít například jako výškovou mapu terénu. Ken Perlin v~roce 2002 upravil původní algoritmus, aby byl rychlejší a neobsahoval viditelné artefakty~\cite{perlin_noise}. Tento algoritmus se nazývá Vylepšený Perlinův šum a je používán do dnes.
 
-V roce 2001 vyvinul následovníka Perlinova šum, Simplex šum. Tento šum jím byl patentován, a i přes své výhody se na trhu neprosadil. Tento patent vypršel 8.1.2022~\cite{patent} a nyní může být volně používán. Jeho výhody jsou~\cite{simplex_perlin}:
+V roce 2001 Perlin vyvinul následovníka Perlinova šum, Simplex šum. Tento šum jím byl patentován, ale i přes své výhody se na trhu neprosadil. Tento patent vypršel 8.1.2022~\cite{patent} a nyní může být volně používán. Jeho výhody jsou~\cite{simplex_perlin}:
 
 \begin{itemize}
 \item Nižší výpočetní složitost, vyžadující méně násobení.
@@ -1325,7 +1327,7 @@ V roce 2001 vyvinul následovníka Perlinova šum, Simplex šum. Tento šum jím
 \item Žádné viditelné směrové artefakty.
 \end{itemize}
 
-Na obrázku~\ref{fig:perlin_simplex} je zobrazen terén vygenerovaný Perlinovým (vlevo) a Simplex šumem (vpravo). Lze pozorovat, že Simplexní šum má vyšší amplitudu a frekvenci opakování vrcholů. Šumy proto nelze jednoduše zaměňovat, ale je potřeba upravit další parametry generátoru. Toto je jedním z důvodů, proč Perlinův šum zůstává populární.
+Na obrázku~\ref{fig:perlin_simplex} je zobrazen terén vygenerovaný Perlinovým (vlevo) a~Simplex šumem (vpravo). Lze pozorovat, že Simplex šum má vyšší amplitudu a~frekvenci opakování vrcholů. Šumy proto nelze jednoduše zaměňovat, ale je potřeba upravit další parametry generátoru. Toto je jedním z důvodů, proč je Perlinův šum stále používán.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/perlin_simplex}
@@ -1338,7 +1340,7 @@ Pro zjednodušení jsou dále v práci používány pojmy 1D, 2D a 3D šum. Poku
 
 Předchozí obrázek~\ref{fig:perlin_simplex} zobrazuje přírodně vypadající terén, obsahující pouze jeden biotop. Tato krajina není zajímavá a po čase působí opakujícím se dojmem. Země obsahuje řadu biotopů, lišících se svou specifickou faunou i flórou. 
 
-K simulaci rozložení biotopů byl využit Whittakerův systém. Robert Whittaker založil jeho klasifikaci na průměrné teplotě a množství spadlých srážek~\cite{whitt}. Tato závislost je zobrazena na obrázku~\ref{fig:whitt_biomes}. Systém definuje následující biotopy:
+K simulaci rozložení biotopů byl využit Whittakerův systém. Robert Whittaker založil klasifikaci na průměrné teplotě a množství spadlých srážek~\cite{whitt}. Tato závislost je zobrazena na obrázku~\ref{fig:whitt_biomes}. Systém definuje následující biotopy:
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/whitt_biomes}
@@ -1363,21 +1365,19 @@ K simulaci rozložení biotopů byl využit Whittakerův systém. Robert Whittak
 Whittakerův systém nedefinuje trvale zaledněné oblasti, které generátor přidává.
 
 \subsection{Výběr biotopu}
-Whittakerův systém neobsahuje všechny kombinace teplot a srážek. Generátor terénu tento systém zjednodušuje a rozšiřuje trojúhelníkový tvar na čtverec. Teplota a srážky jsou rozděleny na 10 úrovní a biotopy jsou poměrově rozděleny přes všechny hodnoty srážek. Díky tomu dokáže generátor zpracovat každou kombinací vstupů.
+Whittakerův systém neobsahuje všechny kombinace teplot a srážek. Generátor terénu tento systém zjednodušuje a rozšiřuje trojúhelníkový tvar na čtverec. Teplota a srážky jsou rozděleny na 10 úrovní a biotopy jsou poměrově rozděleny přes všechny hodnoty srážek. Díky tomu dokáže generátor zpracovat každou kombinací vstupů, pouhým vyhledáním v tabulce.
 
 Pokud se v políčku tabulky nachází dva biotopy, generátor z nich vybere jeden, pomocí 2D šumu a pozice na mapě. Biotopy by měly pokrývat velké oblasti terénu. Je proto nutné zvolit vhodné měřítko šumu, aby nedocházelo k opakovaným změnám biotopů v jedné oblasti.
 
 \subsection{Mapa srážek}
 
-Komplexní srážkové modely mohou brát v potaz globální směr větru, pohoří, blízkost k vodím plochám způsobujících odpar\dots Generátor používá nejjednodušší verzi modelu, a to mapu srážek vygenerovanou pomocí 2D šumu.
+Komplexní srážkové modely mohou brát v potaz globální směr větru, pohoří, blízkost k vodím plochám způsobujících odpar\dots ~Generátor používá nejjednodušší verzi modelu, a to mapu srážek vygenerovanou pomocí 2D šumu.
 
 \subsection{Teplotní pásy}
 
 Země je rozdělena do teplotních pásů, čím více se člověk nachází na severu/jihu, tím nižší je průměrná teplota. Generátor tuto skutečnost simuluje a rozšiřuje jí na nekonečný terén. Pokud se hráč pohybuje na sever, teplota nejdříve klesá až na svoje minimum a poté opět roste.
 
-Rozdělení do pásů nepřináší dostatečně dobré výsledky. Pásy jsou přesně definované a hráč si snadno všimne rovných předělů mezi biotopy. Obrázek~\ref{fig:biomes_old} zobrazuje mapu biotopů, kde lze vidět dlouhé rovné předěly vzniklé změnou teploty, ale i ostré hrany biotopů vzniklé změnou teploty a srážek.
-
-\todo{je rozlozeni s oriznutymi obrazky lepsi?}
+Rozdělení do pásů nepřináší dostatečně dobré výsledky. Pásy jsou přesně definované a hráč si snadno všimne rovných předělů mezi biotopy. Obrázek~\ref{fig:biomes_old} zobrazuje mapu biotopů, kde lze vidět dlouhé rovné předěly vzniklé změnou teploty, ale i ostré hrany biotopů vzniklé změnou kombinace teploty a srážek.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/biomes_old}
@@ -1391,7 +1391,7 @@ auto fluctuation = Engine::Random::Simplex.fractal0_1(
     2, (pos.x + pos.z * 0.5f) * 0.1f) * bandFluctuation;
 \end{verbatim}
 
-Biotopy jsou od sebe není odděleny křivkou, ale přechod se stále jeví jako moc ostrý. Biotopy jejichž hranice se prolínají působí přirozenějším dojmem. Na obrázku~\ref{fig:fuzzy_trans} lze vidět, že na hraně mezi biotopy se prolínají oba druhy bloků a změna je postupná. Toto lze implementovat přidáním přechodových biotopů, které mohou mít další vlastnosti. Generátor používá jednodušší řešení, které dostatečně zvyšuje kvalitu přechodů – přičtení náhodného šumu k pozici, ze které je vypočtena teplota (množství srážek).
+Biotopy jsou od sebe není odděleny křivkou, ale přechod se stále jeví jako moc ostrý. Biotopy jejichž hranice se prolínají působí přirozenějším dojmem. Na obrázku~\ref{fig:fuzzy_trans} lze vidět, že na hraně mezi biotopy se prolínají oba druhy bloků a změna je postupná. Toto lze implementovat přidáním přechodových biotopů, které mohou mít další vlastnosti. Generátor používá jednodušší řešení, které dostatečně zvyšuje kvalitu přechodů – přičtení náhodného šumu k pozici, ze které je vypočtena teplota a množství srážek.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/fuzzy_trans}
@@ -1403,7 +1403,7 @@ fluctuation += static_cast<float>(
     Engine::Random::GetNoiseLimited(pos, Weather::NOISE));
 \end{verbatim}
 
-Na mapě xx je zobrazené nové rozložení biotopů. Rovné přechody mezi biotopy byly eliminovány. V místech, kde byly kratší rovné přechody, lze nadále vidět změnu biotopů. Ostrost přechodu však byla odstraněna a biotopy se v těchto místech prolínají. Přičtení náhodného šumu také omezuje vizuální dopad vzniklý posunem hranic teplotních pásů, pomocí stejné křivky – 1D šumu.
+Na mapě~\ref{fig:biomes_new} je zobrazené nové rozložení biotopů. Rovné přechody mezi biotopy byly eliminovány. V místech, kde byly kratší rovné přechody, lze nadále vidět změnu biotopů. Ostrost přechodu však byla odstraněna a biotopy se v těchto místech prolínají. Přičtení náhodného šumu také omezuje vizuální dopad vzniklý posunem hranic teplotních pásů, pomocí stejné křivky – 1D šumu.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/biomes_new}
@@ -1441,21 +1441,21 @@ Jak lze vidět z obrázku~\ref{fig:trees} vzdálenost mezi stromy (červené čt
 
 Perlinův šum umožňuje generovat terén, který pozvolně mění svou výšku. V~přírodě však existují hory, útesy, skály, které svůj výškový profil mění rapidně. Tohoto efektu není možné dosáhnout pouze za pomoci jednoho šumu.
 
-Komplexnější terén je možné generovat kombinací několika map šumu do jedné. Například jedna mapa může představovat výšku terénu – pohoří, vysočiny, roviny – a druhá drobné změny v terénu. Pomocí tohoto způsobu ale nelze docílit prudké změny terénu. Pro vytvoření prudkého stoupání generátor nelineárně transformuje intervaly šumu na výšku terénu. Transformační funkci zobrazuje graf~\ref{fig:noise_to_height}.
+Komplexnější terén je možné generovat kombinací několika map šumu do jedné. Například jedna mapa může představovat výšku terénu – pohoří, vysočiny, roviny – a druhá drobné změny v terénu. Pomocí tohoto způsobu nelze docílit prudké změny terénu. Pro vytvoření prudkého stoupání generátor nelineárně transformuje intervaly šumu na výšku terénu. Transformační funkci zobrazuje graf~\ref{fig:noise_to_height}.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/noise_to_height}
 	\caption[Transformace šumu na výšku terénu]{Transformace šumu na výšku terénu}\label{fig:noise_to_height}
 \end{figure}
 
-S tímto mapováním by ale všechny útesy měly stejný sklon a pohoří by se nemohla zdvihat pozvolně. Generátor proto kombinuje výšky z následujících šumů.
+S tímto mapováním by všechny útesy měly stejný sklon a pohoří by se nemohla zdvihat pozvolně. Generátor proto kombinuje výšky z následujících šumů.
 
 \begin{itemize}
 \item Základní výška --- Určuje výšku terénu před přidáním pohoří. Níže položený terén častěji obsahuje vodní plochy.
 
 \item Hory --- Šum, jehož průběh zobrazuje graf~\ref{fig:noise_to_height}. Určuje, kde se mají nacházet hory.
 
-\item Pohoří --- Používá podobné mapování hodnot jako šum pro hory. Definuje, v jaké části mapy se můžou vyskytovat hory. A určuje jejich výšku a úhel stoupání. Má větší měřítko, než šum pro hory. 
+\item Pohoří --- Používá podobné mapování hodnot jako šum pro hory. Definuje, v jaké části mapy se můžou vyskytovat hory a určuje jejich výšku a úhel stoupání. Má větší měřítko, než šum pro hory. 
 
 \item Údolí a vrcholy --- Vytváří ostré špičky hor a údolí, která by byla erodována vodními toky. Hodnota 0,5 značí nejnižší bod údolí. Hodnoty 0~a~1~vrchol hory.
 
