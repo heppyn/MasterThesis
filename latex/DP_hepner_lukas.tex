@@ -362,11 +362,11 @@ Osvětlení v reálném světě je extrémně složitý problém. Jeho přesná 
 Jednou z aproximací reálného světa je Phongův osvětlovací model, skládající se ze tří hlavních částí~\cite{lopgl_basic_light}.
 
 \begin{itemize}
-\item Okolní (ambient) světlo --- I za tmy jsou objekty nasvíceny světlem odraženým od ostatních objektů (měsíc) nebo vzdáleným zdrojem světla (hvězdy). Objekty většinou nejsou zcela tmavé. A nastavením konstanty pro ambientní osvětlení můžeme simulovat tento jev.
+\item Okolní (ambient) světlo --- I za tmy jsou objekty nasvíceny světlem odraženým od ostatních objektů (měsíc) nebo vzdáleným zdrojem světla (hvězdy). Objekty většinou nejsou zcela tmavé. Nastavením konstanty pro ambientní osvětlení můžeme simulovat tento jev.
 
 \item Difúzní světlo --- Simuluje dopad světla na objekt. Pokud je objekt natočen ke zdroji světla, bude ním více ovlivněn. 
 
-\item Lesklé světlo --- Simuluje odraz světla od lesklého předmětu.
+\item Spekulární (přímé) světlo  --- Simuluje odraz světla od lesklého předmětu.
 \end{itemize}
 
 Výpočet osvětlení může být prováděn na CPU, nastavením světlosti každé stěny bloku. Pokud má být docíleno věrnějšího výsledku, je nutné počítat světlost pro každý fragment objektu (úhel dopadu světla se může výrazně lišit pro fragmenty na opačných stranách objektu). Výpočet je proto prováděn na grafické kartě, přesněji ve fragment shaderu.
@@ -378,7 +378,7 @@ vec3 ambient =
     light.ambient * vec3(texture(texture_diffuse1, TexCoord));
 \end{verbatim}
 
-Pro výpočet difuzní složky, je shaderu předána pozice světla (\texttt{light.position}) a jeho barva (\texttt{light.diffuse}). Světlo dopadající kolmo na fragment má největší efekt na jeho výslednou barvu. Pro výpočet úhlu dopadu je využit normálový vektor fragmentu\footnote{Normálový vektor je předán vertex shaderu jako jeden z~atributů vrcholu trojúhelníku. Ten ho následně předá fragment shaderu.}. Vynásobením (skalární součin) normálového vektoru fragmentu a vektoru směřujícího od fragmentu ke světlu, je získána hodnota 1 pro vektory svírající nulový úhel a 0 pro kolmé vektory. Rozsah hodnot je zaručen normalizací vektorů.
+Pro výpočet difuzní složky, je shaderu předána pozice světla na scéně (\texttt{light.position}) a jeho barva (\texttt{light.diffuse}). Světlo dopadající kolmo na fragment má nej\-vět\-ší efekt na jeho výslednou barvu. Pro výpočet úhlu dopadu je využit normálový vektor fragmentu\footnote{Normálový vektor je předán vertex shaderu jako jeden z~atributů vrcholu trojúhelníku. Ten ho následně předá fragment shaderu.}. Vynásobením (skalární součin) normálového vektoru fragmentu a vektoru směřujícího od fragmentu ke světlu, je získána hodnota 1 pro vektory svírající nulový úhel a 0 pro kolmé vektory. Rozsah hodnot je zaručen normalizací vektorů.
 
 Pokud vektory svírají úhel větší než 90° je hodnota skalárního součinu záporná. Tuto situaci si lze představit jako dopad světla z opačné strany fragmentu. Ten by tedy neměl být osvětlený, \texttt{diff} je nastaven na 0. Hodnota difuzní složky je vynásobena s barvou světla a fragmentu.
 
@@ -389,7 +389,7 @@ vec3 diffuse = diff * light.diffuse *
     vec3(texture(texture_diffuse1, TexCoord));
 \end{verbatim}
 
-Intenzita odraženého světla (lesklá složka) je závislá na pozici pozorovatele (předána shaderu jako \texttt{view\_pos}). Pokud odražené světlo směřuje přímo do oka pozorovatele, je jeho intenzita nejvyšší. Vektor odraženého světla lze spočítat pomocí funkce \texttt{reflect}. Její první parametr je vektor směřující od světla k~fragmentu, tedy vektor opačný k \texttt{lightDir}. Druhý parametr je normál-ový vektor.
+Intenzita odraženého světla (lesklá složka) je závislá na pozici pozorovatele (předána shaderu jako \texttt{view\_pos}). Pokud odražené světlo směřuje přímo do oka pozorovatele, je jeho intenzita nejvyšší. Vektor odraženého světla lze spočítat pomocí funkce \texttt{reflect}. Její první parametr je vektor směřující od světla k~fragmentu, tedy vektor opačný k \texttt{lightDir}. Druhý parametr je nor\-mál\-ový vektor.
 
 Intenzita je opět spočítána pomocí skalárního součinu, a umocněna lesklostí materiálu. Čím vyšší lesklost, tím méně je světlo rozptýleno do všech směrů a velikost efektu se zmenší~\cite{lopgl_basic_light}.
 
@@ -405,7 +405,7 @@ vec3 specular = spec * light.specular *
 Na obrázku~\ref{fig:phong} je vykreslená bedna osvícena všemi druhy světel a jejich kombinací.
 
 \begin{figure}\centering
-	\includegraphics[width=\textwidth]{images/phong}
+	\includegraphics[width=\textwidth]{images/phong_adj}
 	\caption[Phongův osvětlovací model]{Phongův osvětlovací model}\label{fig:phong}
 \end{figure}
 
@@ -422,7 +422,7 @@ vec3 specular = spec * light.specular *
 
 Lesklá textura nemusí definovat barvu odrazu -- odražené světlo má barvu zdroje světla, ale pouze její intenzitu. Dřevěná část textury má černou barvu (žádný odraz), kovová část je převedena do černo-bílého spektra~\cite{lopgl_light_maps}.
 
-Pokud objekt nemá používat lesklé odrazy, nemusí být textura definována. Při změně nastavení textur, jsou všechny navázané textury odpojeny (unbound from texture samplers). Následně jsou navázané všechny definované textury.
+Pokud objekt nemá používat lesklé odrazy, nemusí být textura definována. Při změně nastavení textur, jsou všechny navázané textury odpojeny (\textit{unbound from texture samplers}). Následně jsou navázané všechny definované textury.
 
 \begin{verbatim}
 unsigned int diffuseNr = 1;
@@ -451,7 +451,7 @@ Aktuální implementace představuje bodový zdroj světla, jehož intenzita nek
 \begin{itemize}
 \item Globální osvětlení --- Představuje zdroj světla nekonečně vzdálený od scény, jehož paprsky jsou rovnoběžné a jeho intenzita se nemění. Jeho pomocí lze modelovat objekty jako je Slunce. 
 
-\item Bodové osvětlení --- Paprsky se šíří všemi směry. Intenzita klesá s uraženou vzdáleností.
+\item Bodové osvětlení --- Paprsky se šíří všemi směry. Intenzita klesá s ura\-že\-nou vzdáleností.
 \end{itemize}
 
 \subsection{Globální světlo}
@@ -467,11 +467,11 @@ vec3 global = globalInt * light.global *
 
 \subsection{Bodové světlo}
 
-Intenzitu světla je možné snižovat lineárně s vzdáleností, kterou urazí. Toto řešení zajistí nižší nasvícení vzdálených objektů, a však vypadá poněkud uměle. Světla v reálném světě jsou z pravidla velmi jasné, pokud se nacházíme v jejich blízkosti. Jejich jas velice rychle klesá s narůstají vzdáleností. V určitém bodě se klesání zpomalí a přibližuje se k nule.
+Intenzitu světla je možné snižovat lineárně s vzdáleností, kterou urazí. Toto řešení zajistí nižší nasvícení vzdálených objektů, a však vypadá poněkud uměle. Světla v reálném světě jsou z pravidla velmi jasná, pokud se nacházíme v jejich blízkosti. Jejich jas velice rychle klesá s narůstají vzdáleností. V určitém bodě se klesání zpomalí a přibližuje se k nule.
 
 K výpočtu útlumu světla lze použít následující rovnici~\cite{lopgl_light_casters}:
 
-$$ F_{att} = \frac{1.0}{K_c + K_l * d + K_q * d^2} $$
+$$ F_{att} = \frac{1.0}{K_c + K_l \cdot d + K_q \cdot d^2} $$
 
 Proměnná \textit{d} reprezentuje vzdálenost fragmentu od zdroje světla. Dále jsou nastaveny tři konstanty:
 
@@ -495,8 +495,6 @@ Hodnoty parametrů jsou určeny požadovaným dosvitem světla. Parametr $K_c = 
 $$ F_{att} = \frac{100 - d}{100} $$
 
 Obrázek~\ref{fig:light} ve své levé části zobrazuje scénu vykreslenou pomocí rovnice útlumu. Pravá část snižuje intenzitu světla lineárně.
-
-\todo{Je tento obrázek potřeba?}
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/light}
