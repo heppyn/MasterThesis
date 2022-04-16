@@ -505,9 +505,9 @@ Obrázek~\ref{fig:light} ve své levé části zobrazuje scénu vykreslenou pomo
 % % Stíny
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
-\chapter{Mapování stínů}
+\chapter{Stínování scény}
 
-V levé části obrázku~\ref{fig:shadows_intro} lze vidět scénu nasvícenou globálním světlem. Každý blok scény je nasvícen individuálně a ignoruje ostatní bloky, které by ho mohli zastiňovat. Tento efekt působí velice nereálně zvláště v podrostu džungle a~pod širokými korunami akácií, které jsou nasvíceny plným světlem. Přidáním stínů lze docílit věrohodnější reprezentace reálného světa a~hráč získá lepší představu o pozici bloků vůči sobě.
+V levé části obrázku~\ref{fig:shadows_intro} lze vidět scénu nasvícenou globálním světlem. Každý blok scény je nasvícen individuálně a ignoruje ostatní bloky, které by ho mohly zastiňovat. Tento efekt působí velice nereálně zvláště v podrostu džungle a~pod širokými korunami akácií, které jsou nasvíceny plným světlem. Přidáním stínů lze docílit věrohodnější reprezentace reálného světa a~hráč získá lepší představu o pozici bloků vůči sobě.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/shadows/intro}
@@ -610,9 +610,9 @@ Viditelné artefakty vznikají na površích, které by neměly mít stín. Prob
 	\caption[Důvod vzniku stínového akné]{Důvod vzniku stínového akné}\label{fig:shadows_diag_acne}
 \end{figure}
 
-K tomuto problému dochází v přídě, kdy světlo dopadá na povrch pod úhlem. V jednoduché scéně, kdy je slunce nad hlavou hráče, by k tomuto problému nedocházelo. Takové scény nejsou vizuálně zajímavé a značně by omezovali možnosti enginu.
+K tomuto problému dochází v případě, kdy světlo dopadá na povrch pod úhlem. V jednoduché scéně, kdy je slunce nad hlavou hráče, by k tomuto problému nedocházelo. Takové scény nejsou vizuálně zajímavé a značně by omezovaly možnosti enginu.
 
-Problém lze vyřešit posunutím mapy stínů (nebo povrchu objektu) tak, aby se texely mapy stínů nenacházely na povrchem objektu, viz diagram~\ref{fig:shadows_diag_acne_fix}.
+Problém lze vyřešit posunutím mapy stínů (nebo povrchu objektu) tak, aby se texely mapy stínů nenacházely nad povrchem objektu, viz diagram~\ref{fig:shadows_diag_acne_fix}.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/shadows/diag_acne_fix}
@@ -634,7 +634,7 @@ float bias = max(0.0085 * (1.0 - dotLightNormal), 0.00085);
 
 \section{Ostré stíny}
 
-Při pohledu na scénu~\ref{fig:shadows_pcf_hard} lze odhalit nedostatečné rozlišení mapy stínů. Několik vykreslovaných fragmentů se namapuje na jeden texel z mapy stínů. Výsledkem jsou zubaté hrany stínu s velmi ostrým přechodem. Řešení, které nevyžaduje zvětšení rozlišení je procentuálně bližší filtrování (percentage--closer filtering -- PCF).
+Při pohledu na scénu~\ref{fig:shadows_pcf_hard} lze odhalit nedostatečné rozlišení mapy stínů. Několik vykreslovaných fragmentů se namapuje na jeden texel z mapy stínů. Vý\-sled\-kem jsou zubaté hrany stínu s velmi ostrým přechodem. Řešení, které nevyžaduje zvětšení rozlišení, je procentuálně bližší filtrování (percentage--closer filtering -- PCF).
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/shadows/pcf_hard}
@@ -666,7 +666,7 @@ Scéna~\ref{fig:shadows_pcf_soft} je vykreslena při použití 9~vzorků. Při p
 
 \section{Pozice mapy stínů na scéně}
 
-Mapa stínů musí být posouvána podle pozice kamery v herním světě. Objekty jsou generovány kolem postavy hráče a pokud se hráč posune od počátku světa, objekty budou smazány a nemohou vrhat stíny. Mapa stínů má však omezené rozlišení a stínováním objektů, které jsou vygenerované, ale hráč je nemá šanci vidět (jsou například za ním), se snižuje kvalita stínů. Pro maximální využití dostupného rozlišení stačí pokrýt pouze objekty, které může hráč v daném snímku vidět. Viditelná část světa je určena maticí pohledu (view) a maticí projekce (projection). Tyto matice tvoří frustum, ve kterém budou objekty viditelné. Toto frustum je potřeba obsáhnout frustem světla s co nejmenšími přesahy. Tato skutečnost ve 2D světě, je ilustrována na obrázku~\ref{fig:shadows_frustum_fit}.
+Mapa stínů musí být posouvána podle pozice kamery v herním světě. Objekty jsou generovány kolem postavy hráče a pokud se hráč posune od počátku světa, objekty budou smazány a nemohou vrhat stíny. Mapa stínů má však omezené rozlišení a stínováním objektů, které jsou vygenerované, ale hráč je nemá šanci vidět (jsou například za ním), se snižuje kvalita stínů. Pro maximální využití dostupného rozlišení stačí pokrýt pouze objekty, které může hráč v daném snímku vidět. Viditelná část světa je určena maticí pohledu (view) a maticí projekce (projection). Tyto matice tvoří komolý jehlan, ve kterém budou objekty viditelné. Tento komolý jehlan je potřeba obsáhnout frustem (frustum může tvořit komolý jehlan nebo kvádr, podle typu projekce) světla s co nejmenšími přesahy. Tato skutečnost ve 2D světě, je ilustrována na obrázku~\ref{fig:shadows_frustum_fit}.
 
 \begin{figure}\centering
 	\includegraphics[width=0.7\textwidth]{images/shadows/frustum_fit}
@@ -772,7 +772,7 @@ return lightProjection * lightView;
 
 \section{Kaskádové mapování stínů}
 
-Jednoduché mapování stínů má podstatnou nevýhodu. Pokud chceme rozšířit oblast pokrytou stíny, musíme zvýšit rozlišení mapy stínů. V opačném případě by stíny blízko hráče byly rozkostičkované. Tímto zvyšováním kvality stínů je masivně zatěžováno GPU. Stíny, které jsou vzdálenější od hráče budou mít stejnou kvalitu, jako ty mu blízké. Toto je zbytečné, vzdálenější stíny mohou mít horší kvalitu – hráč bude rozlišovat pouze jejich tvar a existenci, drobné detaily jsou zbytečné. Tento problém řeší kaskádové mapování stínů, skládající se z následujících kroků~\cite{lopgl_csm}.
+Jednoduché mapování stínů má podstatnou nevýhodu. Pokud chceme rozšířit oblast pokrytou stíny, musíme zvýšit rozlišení mapy stínů. V opačném případě by stíny blízko hráče byly rozkostičkované. Tímto zvyšováním kvality stínů je masivně zatěžováno GPU. Stíny, které jsou vzdálenější od hráče, budou mít stejnou kvalitu, jako ty mu blízké. Toto je zbytečné, vzdálenější stíny mohou mít horší kvalitu -- hráč bude rozlišovat pouze jejich tvar a existenci, drobné detaily jsou zbytečné. Tento problém řeší kaskádové mapování stínů, skládající se z následujících kroků~\cite{lopgl_csm}.
 
 \begin{enumerate}
 \item Rozděl frustum kamery na $n$ subfrust, kde vzdálená plocha frusta $i$ je blízká plocha frusta $i + 1$.
@@ -852,7 +852,7 @@ bias *= cascadeBiases[layer];
 
 \subsection{Změna počtu kaskád}
 
-Engine umožňuje měnit počet kaskád při běhu programu. Shadery proto musí mít alokované dostatečně velké místo, pro uložení všech matic. Jedinou výjimkou je geometry shader, ve kterém je specifikován počet vyvolání.
+Engine umožňuje měnit počet kaskád při běhu programu. Shadery proto musí mít alokované dostatečně velké místo, pro uložení všech matic. Jedinou vý\-jim\-kou je geometry shader, ve kterém je specifikován počet vyvolání.
 
 \begin{verbatim}
 #define CASCADE_COUNT 3
@@ -883,7 +883,7 @@ Aktuální hodnota časovače je zjištěna dotazem:
 glQueryCounter(QueryId_[0], GL_TIMESTAMP);
 \end{verbatim}
 
-Čas je zaznamenán po doběhnutí všech předchozích volání~\cite{kronos_counter}. Před vyčtením hodnoty časovače musí CPU aktivně čekat, dokud není výsledek dotazu k dispozici. A následně výsledky dotazu načíst.
+Čas je zaznamenán po doběhnutí všech předchozích volání~\cite{kronos_counter}. Před vy\-čte\-ním hodnoty časovače musí CPU aktivně čekat, dokud není výsledek dotazu k dispozici. A následně výsledky dotazu načíst.
 
 \begin{verbatim}
 glQueryCounter(QueryId_[1], GL_TIMESTAMP);
@@ -933,7 +933,7 @@ Doposud byly grafické kartě předávány všechny objekty na scéně. Ztráta 
 
 Při vykreslování map stínů je použit geometry shader, generující nová primitiva pro každou kaskádu. Tyto primitiva nejsou automaticky ořezána grafickou kartou, jako v případě fragment shaderu. Dochází tedy ke generování primitiv, které hráč nemůže vidět a ani nebudou vrhat stín na viditelnou plochu.
 
-Engine proto musí provést ořezání objektů, před jejich předáním grafické kartě. Testování je prováděno na úrovni chunků. Pokud je část chunku viditelná hráčem, pak je uložen ukazatel na jeho obsah, který je následně předán grafické kartě. Situaci ilustruje obrázek~\ref{fig:visible_chunks}, kde jsou viditelné chunky zvýrazněny.
+Engine proto musí provést ořezání objektů před jejich předáním grafické kartě. Testování je prováděno na úrovni chunků. Pokud je část chunku viditelná hráčem, pak je uložen ukazatel na jeho obsah, který je následně předán grafické kartě. Situaci ilustruje obrázek~\ref{fig:visible_chunks}, kde jsou viditelné chunky zvý\-raz\-něny.
 
 \begin{figure}\centering
 	\includegraphics[width=0.7\textwidth]{images/visible_chunks}
