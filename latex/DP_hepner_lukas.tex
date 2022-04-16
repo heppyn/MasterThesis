@@ -169,13 +169,23 @@ Engine je rozdělen do několika modulů a sub modulů, seskupujících funkcion
 	\caption[Architektura enginu]{Architektura enginu}\label{fig:architecture}
 \end{figure}
 
+\section{Engine}
+
 Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpracovávání a generování objektů na základě L-systému. Třídy zajišťující implementaci, s kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
 
 Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu~\cite{ecs}. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a~jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
 
+Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují herní objekty. Správu scény zajišťuje třída \texttt{Scene}, která ukládá chunky do \textit{std::map} využívající jejich pozici jako klíč. Rozdělení na chunky zrychluje operace jako je ořezání viditelné herní plochy, po kterém třída \texttt{Scene} upraví pole ukazatelů na data objektů, které mají být vykresleny.
+
+Každý chunk obsahuje dvě pole herních objektů, rozdělené na průhledné a neprůhledné. Herní objekty se mohou překrývat -- z důvodu úspory paměti nejsou rozděleny na sub-voxely, které se nepřekrývají.
+
+Velikost chunku (šířka a hloubka) je 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata, obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
+
 Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
 
 Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou funkcionalitu používanou generátorem terénu. 
+
+\section{Renderer}
 
 Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
 
