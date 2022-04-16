@@ -118,7 +118,11 @@ Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižší
 K interakci s grafickou kartou bylo zvoleno OpenGL vyvíjené skupinou Khronos. Pro vývoj byla zvolena stabilní verze 4.6, vydaná v roce 2017. Tato verze přináší pokročilé funkce využívané v shaderech, ale je na trhu dostatečně dlouho, aby byla podporována většinou moderních grafických karet.
 
 \subsection{Vykreslovací řetězec}
-OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při spuštění programu (např.: způsob mísení barev, povolení testu hloubky\dots). Některé se musí měnit podle dat, které se mají vykreslit (např. face culling). Grafická karta má před každým voláním pro vykreslení scény uložena data objektů ve svých bufferech, přiřazené textury do texturovacích jednotek, nastavené proměnné shaderů a shadery, které se mají pro vykreslení použít. Tyto parametry představují stav OpenGL, podle něhož se vykreslí scéna. Vykreslení může probíhat ve více krocích -- vykreslovací příkaz OpenGL je zavolán několikanásobně. Při každém volání proběhnou následující kroky~\cite{kronos_render}:
+OpenGL představuje stavový automat. Jeho výchozí hodnoty jsou nastaveny při spuštění programu (např. způsob mísení barev, povolení testu hloubky\dots). Některé se musí měnit podle dat, které se mají vykreslit (např. face culling). Grafická karta má před každým voláním pro vykreslení scény uložena data objektů ve svých bufferech, přiřazené textury do texturovacích jednotek, nastavené hodnoty proměnných vývojářem definovaných programů\dots~ Tyto parametry představují stav OpenGL, podle něhož se vykreslí scéna.
+
+Kroky vykreslovacího řetězce jsou vysoce specializované a výstup každého z nich je použit jako vstup pro další. Tyto kroky je možné masivně paralelizovat a využít tisíců jader, které může grafická karta obsahovat. Každé jádro spouští malý program, pro každý krok vykreslovacího řetězce. Tyto programy jsou nazývané shadery. Některé ze shaderů může definovat vývojář a nahradit nimi existující výchozí shadery~\cite{lopgl_triangle}.
+
+Vykreslovací řetězec se skládá z následujících kroků~\cite{kronos_render}: 
 
 \begin{enumerate}
 \item Specifikace vrcholů --- načtení formátu vrcholů a předání dat, která budou zpracována dále v řetězci. 
@@ -197,9 +201,7 @@ Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslo
 
 \chapter{Vykreslení scény}
 
-Vykreslovací engine má za úkol převod scény definované v 3D prostoru na 2D plochu zobrazovacího zařízení hráče. Tento proces začíná na CPU, kde jsou herní objekty převedeny na data (matice), která jsou poslána grafické kartě. Zde jsou za pomocí série kroků transformována na zobrazitelné pixely. Tyto kroky jsou vysoce specializované a výstup každého z nich je použit jako vstup pro další. 
-
-Tyto kroky je možné masivně paralelizovat a využít tisíců jader, které může grafická karta obsahovat. Každé jádro spouští malý program, pro každý krok vykreslovacího řetězce. Tyto programy jsou nazývané shadery. Některé ze shaderů může definovat vývojář a nahradit nimi existující výchozí shadery~\cite{lopgl_triangle}.
+Vykreslovací engine má za úkol převod scény definované v 3D prostoru na 2D plochu zobrazovacího zařízení hráče. Tento proces začíná na CPU, kde jsou herní objekty převedeny na data (matice), která jsou poslána grafické kartě. Zde jsou za pomocí série kroků transformována na zobrazitelné pixely.
 
 V každém snímku je scéna vykreslena pomocí série za sebou jdoucích vykreslovacích příkazů OpenGL. Každý z nich upraví hodnotu pixelů výstupního bufferu, jejich přepsáním nebo smícháním současné a~nové barvy. Před každým vykreslovacím příkazem je potřeba nastavit stav OpenGL podle dat, která se mají aktuálně vykreslit. Před vykreslením může taktéž dojít ke změně použitého shaderu nebo výstupního bufferu (vykreslení mimo obrazovku).
 
