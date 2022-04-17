@@ -1444,7 +1444,7 @@ Jak lze vidět z obrázku~\ref{fig:trees} vzdálenost mezi stromy (červené čt
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/trees}
-	\caption[Odstranění rovných přechodů]{Odstranění rovných přechodů}\label{fig:trees}
+	\caption[Rozmístění stromů v závislosti na biotopu]{Rozmístění stromů v závislosti na biotopu}\label{fig:trees}
 \end{figure}
 
 \section{Výška terénu}
@@ -1485,6 +1485,33 @@ Mapa~\ref{fig:height} zobrazuje výšku terénu. Pro šum generující pohoří 
 	\includegraphics[width=\textwidth]{images/world_gen/height}
 	\caption[Mapa výšky terénu]{Mapa výšky terénu}\label{fig:height}
 \end{figure}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % Testování
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+\chapter{Testování}
+
+Pro unit testování byl zvolen testovací framework Catch2~\cite{catch2}. Mezi jeho výhody patří možnost poskytnutí vlastní main funkce. Spuštění testů bylo možné navázat na spuštění enginu (mohou běžet i samostatně). Tato možnost byla zapnuta v defaultním nastavení a pomohla urychlit vývoj, díky včasnému odhalení chyb, které by se projevily vizuálně. Mezi tyto chyby patří hlavně zpracování zdrojů enginu, které nemůže zachytit kompilátor. Například před\-zpracování shaderů před jejich překladem (vložení konstant do zdrojového kódu shaderu) nebo generace L-systémů.
+
+Automatizované testy jsou ve složce \textit{tests} a jejich struktura odpovídá struktuře zdrojových souborů (složka \textit{src}), které testují. Projekt obsahuje 340 asercí, rozdělených do 14 skupin podle souborů, které testují. Pro spuštění testů byla vytvořena nová konfigurace -- \textit{Test}, která na základě podmíněného překladu spustí pouze testy.
+
+\section{Vizuální testování}
+
+Generátor terénu je komplexní systém a jeho výstup není přesně definovaný -- může se měnit se změnou jeho parametrů. Testování vyžadovalo opakované spouštění hry a manuální kontrolu požadovaných výsledků. Vizuální kontrola je časově náročná a je v ní možné udělat chybu, vzhledem k množství dat, která jsou zobrazena (hory, stromy, přechody biotopů, \dots), někdy také nemožná -- vlhkost a teplota nejsou zobrazeny\footnote{Tento problém se v praxi často řeší debugovací obrazovkou, která zobrazuje hráči neviditelné údaje.}, ale interpretovány generátorem.
+
+Z těchto důvodů byl vyvinut nástroj Map Visualizer~\cite{map_vis}, který umožňuje načíst soubor exportovaný generátorem a vizualizovat ho jako mapu. Některé z těchto map již byly v textu zobrazeny. Nástrojem je možné vizualizovat:
+
+\begin{itemize}
+\item Výšku terénu
+\item Distribuci stromů
+\item Rozmístění biotopů
+\item Teplotu
+\item Vlhkost
+\end{itemize}
+
+Vizualizátor dokáže načíst libovolně velkou scénu a každý blok zobrazuje jako jeden pixel. Díky tomu je možné najednou zobrazit větší herní plochu, než by byl engine schopen vykreslit.
+
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % ZAVER
