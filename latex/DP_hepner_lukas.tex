@@ -1540,9 +1540,9 @@ Práce se specializuje pouze na úzkou oblast funkcí, které herní enginy posk
 \begin{itemize}
 \item Kolize a hráč --- Prototypu hráče je umožněno pohybovat se libovolně po scéně. To znamená i skrze bloky. Pro využití ve hře, by bylo nutné implementovat kolizní systém a doprogramovat mechaniky hráčem ovládané postavy.
 
-\item Rozšíření generátoru terénu --- Generovaný terén neobsahuje řadu úkazů, které lze najít v přírodě. Mezi ně patří například převislé skalní stěny či jeskyně. Rozšířením generátoru by došlo ke vzniku ještě rozmanitějšího terénu, který by mohl přinášet další herní prvky – monstra schovaná v~jeskyních atd.
+\item Rozšíření generátoru terénu --- Generovaný terén neobsahuje řadu úkazů, které lze najít v přírodě. Mezi ně patří například převislé skalní stěny či jeskyně. Rozšířením generátoru by došlo ke vzniku ještě rozmanitějšího terénu, který by mohl přinášet další herní prvky -- monstra schovaná v~jeskyních atd.
 
-\item Optimalizace datových struktur --- Engine dokáže vykreslit jakoukoliv geometrii – stačí definovat její vrcholy (bloky mohou být složeny z~jednotlivých stěn krychle). Pomocí UV mapování~\cite{uv_mapping} by bylo možné vyhnout se skládání bloků a snížit počet herních objektů. 
+\item Optimalizace datových struktur --- Engine dokáže vykreslit jakoukoliv geometrii -- stačí definovat její vrcholy (bloky mohou být složeny z~jednotlivých stěn krychle). Pomocí UV mapování~\cite{uv_mapping} by bylo možné vyhnout se skládání bloků a snížit počet herních objektů. 
 
 Data herního objektu jsou grafické kartě předána jako matice velikosti 4 x 4. Pokud by byl vytvořen vlastní formát pro uložení dat objektů a~matice transformací by byla vytvořena až na GPU, došlo by ke snížení množství přenesených dat mezi CPU a GPU. 
 \end{itemize}
