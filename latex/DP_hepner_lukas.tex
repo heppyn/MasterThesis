@@ -1518,7 +1518,24 @@ Vizualizátor dokáže načíst libovolně velkou scénu a každý blok zobrazuj
 % % % % % % % % % % % % % % % % % % % % % % % % % % % %  
 
 \begin{conclusion}
-	%sem napište závěr Vaší práce
+Hlavním cílem práce bylo navrhnout a vytvořit renderovací engine, vykreslující voxelovou grafiku, a jeho schopnosti otestovat pomocí vlastního generátoru terénu, který s ním bude komunikovat.
+
+Pro engine byla implementována sada shaderů, využívající možnosti pře\-su\-nout výpočty na grafickou kartu. Tyto shadery umožňují nasvítit scénu globální zdrojem světla nebo světlem bodovým. Ke zvýšení vizuální kvality byl vytvořen shader přidávající objektům stíny. Uživateli je umožněno vytvářet vlastní shadery a použít je k vykreslení scény.
+
+Engine je schopen zpracovat stovky tisíc objektů, množství dostatečné pro zobrazení rozsáhlého venkovního prostředí. Velikost scény je možné škálovat a snížit tak nároky na CPU a GPU. Samostatně lze škálovat kvalitu stínů vykresleného snímku, podle možností grafické karty.
+
+Spolu s enginem byl vyvinut procedurální generátor vytvářející terén sklá\-da\-jí\-cí se z rovin, hor a pohoří. Herní svět se skládá z biotopů nacházejících se na Zemi. Biotopy se mění na základě nadmořské výšky a zeměpisné šířky, jejíž koncept je rozšířen na nekonečný terén. Každý biotop obsahuje vegetaci, která je generována na základě L-systémů.
+
+Svět je generován deterministickým algoritmem -- nemění se při opakovaném běhu generátoru. Nový svět je možné vytvořit změnou seedu, na nějž jsou navázány všechny funkce generátoru.
+
+K navigaci po světe byl vytvořen prototyp hráče, kterému je umožněno pohybovat se libovolným směrem. Svět je generován v závislosti na jeho poloze a~oblasti, které opustil jsou uvolněny z paměti. 
+
+Scénu je možné exportovat do souboru ve formátu JSON. Možnosti použití exportované scény byly ukázány na nástroji, který načte scénu a na jejím základu vytvoří mapy terénu.
+
+Třídy enginu jsou otestovány unit testy. Na generátoru terénu byla uká\-zá\-na možnost, jak testovat jeho výstup pomocí dodatečných vizuálních nástrojů.
+
+\section{Možnosti rozšíření}
+
 \end{conclusion}
 
 \bibliographystyle{csn690}
@@ -1529,8 +1546,14 @@ Vizualizátor dokáže načíst libovolně velkou scénu a každý blok zobrazuj
 \chapter{Seznam použitých zkratek}
 % \printglossaries
 \begin{description}
-	\item[GUI] Graphical user interface
-	\item[XML] Extensible markup language
+	\item[GLSL] OpenGL Shading Language
+	\item[GLM] OpenGL Mathematics
+	\item[ECS] Entity-Component-System
+	\item[FPS] Frames per second
+	\item[PCF] Percentage-closer Filtering
+	\item[NDC] Normalized Device Coordinates
+	\item[CSM] Cascaded Shadow Mapping
+	\item[PRNG] Pseudo Random Number Generator
 \end{description}
 
 
