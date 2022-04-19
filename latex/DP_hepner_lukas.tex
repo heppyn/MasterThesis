@@ -67,7 +67,7 @@ Moderní herní enginy umožňují vyvíjet aplikace pro desktop (Linux, \mbox{m
 
 S rozvojem her, s otevřeným světem vznikaly větší a větší nároky na designéry, musející vytvářet detaily každého zákoutí světa, do kterého se může hráč dostat. Některé hry proto využívají metody procedurálního generování obsahu.
 
-V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty následně vydat pro všechny hráče. Opačným směrem se vydávají hry, které generují veškerý obsah v průběhu hry. Touto technikou se nejvíce proslavila hra Minecraft, která umožňuje hráči prozkoumávat nekončící terén, generovaný na základě semínka světa. Každý hráč tak může objevovat svůj vlastní svět, lišící se od všech ostatních. 
+V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty následně vydat pro všechny hráče. Opačným směrem se vydávají hry, které generují veškerý obsah v průběhu hry. Touto technikou se nejvíce proslavila hra Minecraft, která umožňuje hráči prozkoumávat nekončící terén, generovaný na základě seedu světa. Každý hráč tak může objevovat svůj vlastní svět, lišící se od všech ostatních. 
 
 \end{introduction}
 
@@ -995,7 +995,7 @@ Stromy v reálném světě jsou si podobné -- rozeznáváme jednotlivé druhy s
 L-systém nebo také Lindenmayerův systém je paralelní přepisovací systém vyvinutý maďarským teoretickým biologem a botanistou Aristidem Lindenmayerem v roce 1968. L-systém je typ formální gramatiky skládající se z abecedy, přepisovacích pravidel a počátečního axiomu. Pomocí postupného derivování počátečního axiomu je možné simulovat vývoj rostliny v čase \cite{pcgbook75}.
 
 \section{Interpretace řetězců pomocí želvy}
-Řetězce lze graficky reprezentovat pomocí želvy, konzumující symboly abecedy. Každý symbol určuje akci, kterou má želva vykonat. Želva se může pohybovat ve 2D nebo 3D prostoru. Ve 2D si můžeme interpretaci představit jako želvu, držící tužku, pohybující se po papíře.
+Řetězce lze graficky reprezentovat pomocí želvy~\cite{turtle_basics}, konzumující symboly abecedy. Každý symbol určuje akci, kterou má želva vykonat. Želva se může pohybovat ve 2D nebo 3D prostoru. Ve 2D si můžeme interpretaci představit jako želvu, držící tužku, pohybující se po papíře.
 
 Želvu lze reprezentovat jako trojici $(x, y, \alpha)$, kde $(x, y)$ představuje kartézské souřadnice reprezentující polohu v prostoru a $\alpha$ úhel kam želva směřuje. Zadáním délky kroku \textit{d} a změny úhlu $\delta$ lze želvu ovládat pomocí následujících symbolů.
 
@@ -1005,7 +1005,7 @@ L-systém nebo také Lindenmayerův systém je paralelní přepisovací systém 
 \item - --- Rotace doprava o úhel $\delta$. Nový stav želvy $(x, y, \alpha - \delta)$.
 \end{itemize}
 
-Nechť je definován následující L-systém. Buď $\omega$ počáteční axiom, $p$ přepisovací pravidlo, $\delta = 90\degree$ a $d$ zmenšené čtyřnásobně pro každý obrázek~\cite{abop7}.
+Nechť je definován následující L-systém. Buď $\omega$ počáteční axiom, $p$ pře\-pi\-so\-va\-cí pravidlo, $\delta = 90\degree$ a $d$ zmenšené čtyřnásobně pro každý obrázek~\cite{abop7}.
 
 \bigskip
 $\omega: F-F-F-F$
@@ -1014,7 +1014,7 @@ $\omega: F-F-F-F$
 $p: F \rightarrow F-F+F+FF-F-F+F$
 
 \bigskip
-Želva interpretující daný L-systém generuje kvadratické Kochovy ostrovy~\ref{fig:koch_island}. Obrázky jsou vygenerovány derivacemi o délce 0 až 3.
+Želva interpretující daný L-systém generuje kvadratické Kochovy ostrovy \ref{fig:koch_island}. Obrázky jsou vygenerovány derivacemi o délce 0 až 3.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/koch_island}
@@ -1022,7 +1022,7 @@ $p: F \rightarrow F-F+F+FF-F-F+F$
 \end{figure}
 
 \section{Větvení v L-systémech}
-S danými přepisovacími pravidly není možné generovat větvící se struktury. Želva vždy pokračuje od své poslední pozice. Říše rostlin je dominovaná větvícími se strukturami, potřebujeme proto matematické vyjádření této skutečnosti.
+S danými přepisovacími pravidly není možné generovat větvící se struktury. Želva vždy pokračuje od své poslední pozice. Říše rostlin je dominovaná vět\-ví\-cí\-mi se strukturami, potřebujeme proto matematické vyjádření této skutečnosti.
 
 Větvení v řetězci můžeme reprezentovat pomocí dvou symbolů [ a ], kde [ značí začátek větve a ] konec větve~\cite{abop24}.
 
@@ -1066,7 +1066,7 @@ Rostliny generované deterministickým L-systémem jsou všechny stejné. Jejich
 
 K předejití tohoto efektu je nutné zavést variace v rámci druhu. Náhodná interpretace řetězce má limitované využití. Změna úhlu větvení, šířky a výšky segmentů rostliny zachovávají topologii struktury, ze které je generovaná. Stochastické L-systémy mohou měnit topologii struktury~\cite{abop28}.
 
-L-systém, který byl do teď používán, nemohl mít více přepisovacích pravidel pro stejný symbol abecedy. Pokud má stochastický L-systém vice přepisovacích pravidel, je z nich vybráno jedno s pravděpodobností $1/n$, kde $n$ je počet přepisovacích pravidel pro daný symbol abecedy\footnote{Tato definice se liší, od definice uvedené ve~\cite{abop28}. Tento způsob náhodného výběru je použit v implementaci, kde pravděpodobnostní distribuci zastupuje několikanásobné zopakování přepisovacího pravidla.}.
+L-systém, který byl do teď používán, nemohl mít více pře\-pi\-so\-va\-cích pravidel pro stejný symbol abecedy. Pokud má stochastický L-systém více pře\-pi\-so\-va\-cích pravidel, je z nich vybráno jedno s pravděpodobností $1/n$, kde $n$ je počet přepisovacích pravidel pro daný symbol abecedy\footnote{Tato definice se liší, od definice uvedené ve~\cite{abop28}. Tento způsob náhodného výběru je použit v implementaci, kde pravděpodobnostní distribuci zastupuje několikanásobné zopakování přepisovacího pravidla.}.
 
 Scéna~\ref{fig:plant_stoch} byla vygenerována za pomocí stochastického L-systému, kde:
 
@@ -1121,8 +1121,8 @@ Třída \texttt{Turtle} rozšiřuje pohyb želvy -- popsané v kapitole Interpre
 \item Pozice v prostoru.
 \item Velikost bloku vytvořeného želvou.
 \item Barva použitá pro kreslení (výstupní pole).
-\item Yaw –- rotace podle osy y.
-\item Pitch –- rotace podle osy x.
+\item Yaw --- rotace podle osy y.
+\item Pitch --- rotace podle osy x.
 \end{itemize}
 
 Želva si udržuje tři navzájem kolmé směrové vektory (nahoru, dopředu, doprava) jednotkové délky, které využívá pro pohyb po scéně. Vektory jsou aktualizované po každé rotaci. Pro výpočet je nutné znát vektor směřující kolmo vzhůru vůči scéně (\texttt{WORLD\_UP}). Generovaný svět je plochý, proto lze tento vektor nahradit konstantním vektorem $(0, 1, 0)$.
@@ -1149,7 +1149,7 @@ if (Helpers::Math::Equal(cos(glm::radians(Pitch_)), 0.0f))
     Pitch_ -= 0.01f;
 \end{verbatim}
 
-Výsledná nepřesnost je menší než maximální rozdíl dvou čísle typu float~$\epsilon$, která jsou považována za stejná. Funkce \texttt{Equal} porovnává desetinná čísla s přesností~$\epsilon$.
+Výsledná nepřesnost je menší než maximální rozdíl dvou čísle typu float~$\epsilon$, která jsou považována za stejná. Funkce \texttt{Equal} porovnává desetinná čísla s~přesností~$\epsilon$.
 
 Želva vystavuje metody pro pohyb ve všech třech osách využívající vektorů \texttt{Up\_, Right\_, Forward\_}. K pozici želvy je přičten patřičný vektor naškálovaný délkou pohybu. Např.:
 
@@ -1163,24 +1163,24 @@ void LSystems::Detail::Turtle::MoveForward(float dz) {
 Následující symboly abecedy mají speciální význam pro jejich interpretaci.
 
 \begin{itemize}
-\item U a u –- Posuň želvu nahoru.
-\item F a f –- Posuň želvu dopředu.
-\item x –- Zmenši blok produkovaný želvou.
-\item X –- Zvětši blok produkovaný želvou.
-\item S –- Nastav původní velikost bloku produkovaného želvou.
-\item + –- Rotuj želvu doleva podle osy y.
-\item - –- Rotuj želvu doprava podle osy y.
-\item $\hat{}$ –- Rotuj želvu nahoru podle osy x.
-\item \& –- Rotuj želvu dolů podle osy x.
-\item $[$ –- Ulož kopii želvy na vrchol zásobníku.
-\item $]$ –- Vyjmi želvu z vrcholu zásobníku.
-\item $0-9$ –- Přepni výstupní pole.
+\item U a u --- Posuň želvu nahoru.
+\item F a f --- Posuň želvu dopředu.
+\item x --- Zmenši blok produkovaný želvou.
+\item X --- Zvětši blok produkovaný želvou.
+\item S --- Nastav původní velikost bloku produkovaného želvou.
+\item + --- Rotuj želvu doleva podle osy y.
+\item - --- Rotuj želvu doprava podle osy y.
+\item $\hat{}$ --- Rotuj želvu nahoru podle osy x.
+\item \& --- Rotuj želvu dolů podle osy x.
+\item $[$ --- Ulož kopii želvy na vrchol zásobníku.
+\item $]$ --- Vyjmi želvu z vrcholu zásobníku.
+\item $0-9$ --- Přepni výstupní pole.
 \end{itemize}
 
 L-systém může obsahovat jakýkoliv jiný ASCII symbol -- mimo bílých znaků a \# -- určený pro expanzi přepisovacích pravidel. Není želvou interpretován.
 
 \subsection{Ovládání želvy}
-Implementace želvy se nachází ve jmenném prostoru \texttt{LSystems::Detail}, uživatel by ji neměl využívat přímo, ale je pro něj připravena třída \texttt{LSystemExecutor} zajišťující generování herních objektů z poskytnutého L-systému.
+Implementace želvy se nachází ve jmenném prostoru \texttt{LSystems::Detail}, uživa\-tel by ji neměl využívat přímo, ale je pro něj připravena třída \texttt{LSystemExecutor} zajišťující generování herních objektů z poskytnutého L-systému.
 
 \texttt{LSystemExecutor} umožňuje generovat herní objekty na základě stochastického L-systému -- topologie struktury výsledného modelu se může měnit mezi jednotlivými voláními generátoru na základě parametru \texttt{salt}. L-systém lze náhodně interpretovat na základě těchto parametrů:
 
@@ -1214,22 +1214,22 @@ E > x[++UE1S&F+F+F+F]-UE
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/acacia_random_angle_leaves}
-	\caption[Nepravidelná koruna akáciového stromu]{Nepravidelná koruna akáciového stromu}\label{fig:acacia_random_angle_leaves}
+	\caption[Pohled ze shora na korunu akácie]{Pohled ze shora na korunu akácie}\label{fig:acacia_random_angle_leaves}
 \end{figure}
 
 Výstupem generátoru je 2D pole obsahující herní objekty rozdělené podle čísla výstupního bufferu, který měla želva při generování. Část enginu je tak odstíněna od textur, které jsou definované v~části procedurálního generátoru. Díky tomuto rozdělení modelu je možné snadno měnit textury pro jednotlivá pole. Procedurální generátor tohoto využívá a~používá stejný model -- jiný běh generátoru -- pro vytváření bříz a~dubů, lišících se texturou kmene a listů.
 
 \section{Modelování rostlin}
 
-Při modelování vegetace bylo třeba velkého množství pokusů a~ladění, kdy rostlina nevypadala přirozeně, ale nebylo jasné, v jaké časti gramatiky je problém. Nejvíce se mi osvědčila technika nalezení reálné rostliny obrázek~\ref{fig:acacia_nature} a~následné pokusy o její napodobení obrázek~\ref{fig:acacia_engine}.
+Při modelování vegetace bylo třeba velkého množství pokusů a~ladění, kdy rostlina nevypadala přirozeně, ale nebylo jasné, v jaké časti gramatiky je problém. Nejvíce se osvědčila technika nalezení reálné rostliny obrázek~\ref{fig:acacia_nature} a~následné pokusy o její napodobení obrázek~\ref{fig:acacia_engine}.
 
-Velice se osvědčilo pravidlo:
+Zvláště užitečným pravidlem se ukázalo být:
 
 \begin{verbatim}
 U > uU
 \end{verbatim}
 
-Díky němu jsou větve blíže k zemi delší, než větve navazující na korunu stromu. Pokud má rostlina význačné části je vhodné je modelovat samostatně (kmen, větve, koruna) viz L-systém generující akácie.
+Díky němu jsou větve blíže k zemi delší než větve navazující na korunu stromu. Pokud má rostlina význačné části je vhodné je modelovat samostatně (kmen, větve, koruna) viz L-systém generující akácie.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/acacia_nature}
@@ -1265,7 +1265,7 @@ Díky těmto krokům biotop obsahuje rostliny navzájem podobného vzhledu, liš
 \section{Výsledky použití L-systémů}
 Definice L-systémů jsou krátké ($\approx$10 řádků na jeden druh rostliny) a produkují velké množství rozdílných jedinců. Předchozí manuální definování rostlin v kódu bylo náročnější, a i při přidání více jedinců pro každý druh, by bylo snadné najít stejné. Odebráním definic rostlin z kódu se zvýšila jeho čitelnost -- definice L-systémů jsou zdroje dat, který engine konzumuje. Nutnost kompilace při změně modelu byla odstraněna a zvýšila se rychlost iterace, s kterou je možné upravovat model.
 
-Vytvořením vlastního formátu pro zápis modelu rostliny se oddělila závislost na programovacím jazyce. Modely tak může vytvářet jiný člen týmu bez znalosti programování a překladu kódu.
+Vytvořením vlastního formátu pro zápis modelu rostliny se oddělila zá\-vi\-s\-lost na programovacím jazyce. Modely tak může vytvářet jiný člen týmu bez znalosti programování a překladu kódu.
 
 Generováním rostlin za běhu programu se snížila rychlost jeho běhu. Tento problém lze mitigovat cachováním rostlin obsahujících velké množství herních objektů. Toto bylo provedeno pro keře. Před spuštěním generace terénu je naplněn buffer obsahující keře vygenerované na základě seedu. Buffer musí být dostatečně velký na to, aby nedošlo ke snížení diverzity rostlin. Při vytváření keře na scéně je vybrán náhodný index do bufferu, závislý na pozici keře. Vybraný model je zkopírován a přesunut na dané místo.
 
