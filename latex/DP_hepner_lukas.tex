@@ -26,6 +26,7 @@
 
 \usepackage{gensymb} %symbol stupne
 \usepackage{todonotes}
+\usepackage{tablefootnote}
 
 \newcommand{\tg}{\mathop{\mathrm{tg}}} %cesky tangens
 \newcommand{\cotg}{\mathop{\mathrm{cotg}}} %cesky cotangens
@@ -1492,6 +1493,10 @@ Mapa~\ref{fig:height} zobrazuje výšku terénu. Pro šum generující pohoří 
 
 \chapter{Testování}
 
+V této kapitole je shrnuto testování, které probíhalo při vývoji enginu a generátoru terénu. Poslední část se zabývá testy výkonu, které proběhly s finální verzí enginu.
+
+\section{Automatizované testování}
+
 Pro unit testování byl zvolen testovací framework Catch2~\cite{catch2}. Mezi jeho výhody patří možnost poskytnutí vlastní main funkce. Spuštění testů bylo možné navázat na spuštění enginu (mohou běžet i samostatně). Tato možnost byla zapnuta v defaultním nastavení a pomohla urychlit vývoj, díky včasnému odhalení chyb, které by se projevily vizuálně. Mezi tyto chyby patří hlavně zpracování zdrojů enginu, které nemůže zachytit kompilátor. Například před\-zpracování shaderů před jejich překladem (vložení konstant do zdrojového kódu shaderu) nebo generace L-systémů.
 
 Automatizované testy jsou ve složce \textit{tests} a jejich struktura odpovídá struktuře zdrojových souborů (složka \textit{src}), které testují. Projekt obsahuje 340 asercí, rozdělených do 14 skupin podle souborů, které testují. Pro spuštění testů byla vytvořena nová konfigurace -- \textit{Test}, která na základě podmíněného překladu spustí pouze testy.
@@ -1510,7 +1515,52 @@ Z těchto důvodů byl vyvinut nástroj Map Visualizer~\cite{map_vis}, který um
 \item Vlhkost
 \end{itemize}
 
-Vizualizátor dokáže načíst libovolně velkou scénu a každý blok zobrazuje jako jeden pixel. Díky tomu je možné najednou zobrazit větší herní plochu, než by byl engine schopen vykreslit.
+Vizualizátor dokáže načíst libovolně velkou scénu a každý blok zobrazuje jako jeden pixel. Díky tomu je možné najednou zobrazit vetší herní plochu, než by bylo možné s dostatečným detailem zobrazit ve 3D prostoru enginu.
+
+\section{Měření výkonu}
+
+K měření výkonu byla použita dvě zařízení, jejíchž parametry jsou zobrazeny v tabulce~\ref{tab:hw}.
+
+\begin{table}\centering
+\caption[Testovací zařízení]{Testovací zařízení}\label{tab:hw}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Zařízení} & \textbf{CPU}                                                          & \textbf{GPU}          & \textbf{RAM} \\ \hline
+Notebook          & \begin{tabular}[c]{@{}l@{}}Intel Core i7-7600U\\ 2.80GHz\end{tabular} & Intel HD Graphics 620 & 16GB DDR4    \\ \hline
+Stolní PC         & \begin{tabular}[c]{@{}l@{}}Intel Core i7-4790K\\ 4.00GHz\end{tabular} & GeForce GTX 960       & 16GB DDR3    \\ \hline
+\end{tabular}
+\end{table}
+
+Výkonnostní testy byly zaměřeny na zjištění maximálního množství vykreslitelných objektů a jejich vliv na obnovovací frekvenci. Velikost scény byla upravována změnou vykreslovací vzdálenosti udávané v chuncích. Pokud je vykreslovací vzdálenost 10 chunků, velikost scény bude 336 x 336 bloků ($336 = 2 \cdot 10 \cdot 16 + 16$).
+
+Tabulka~\ref{tab:avg_time} zobrazuje průměrnou dobu nutnou pro vykreslení jednoho snímku v milisekundách. Lze si všimnou, že PC s výkonnější grafickou kartou dosahuje přibližně trojnásobného zrychlení. Tabulka~\ref{tab:var_time} udává výběrovou směrodatnou odchylku vypočtenou z doby nutné pro vykreslení snímku. Vý\-kon\-něj\-ší HW dokázal udržel stabilnější vykreslovací frekvenci při rozhlížení se po scéně, způsobující změnu vykreslených objektů.
+
+\begin{table}\centering
+\caption[Průměrná doba vykreslení snímku]{Průměrná doba vykreslení snímku}\label{tab:avg_time}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Zařízení} & \textbf{\begin{tabular}[c]{@{}l@{}}17 chunků\tablefootnote{Počet objektů na scéně byl 1 049 644 a 5 707 621 pro vzdálenost 17, respektive 40 chunků.}\\ 3 CMS\tablefootnote{Počet kaskád stínů.}\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}17 chunků\\ 5 CSM\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}40 chunků\\ 3 CSM\end{tabular}} \\ \hline
+Notebook & 67,65 & 87,01 & 152,77 \\ \hline
+Stolní PC & 20,61 & 26,31 & 62,13 \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}\centering
+\caption[Směrodatná odchylka vykreslení snímku]{Směrodatná odchylka vykreslení snímku}\label{tab:var_time}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Zařízení} & \textbf{\begin{tabular}[c]{@{}l@{}}17 chunků\\ 3 CMS\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}17 chunků\\ 5 CSM\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}40 chunků\\ 3 CSM\end{tabular}} \\ \hline
+Notebook & 43,65 & 45,30 & 62,17 \\ \hline
+Stolní PC & 6,75 & 8,61 & 9,85 \\ \hline
+\end{tabular}
+\end{table}
+
+Při zjišťování maximálního počtu vykreslitelných objektů byl nalezen limit 32bitové verze aplikace. Množství spotřebované paměti RAM na scéně obsahující přibližně 6 milionů objektů, přesáhl 2 GB a OpenGL nebylo schopno alokovat dostatečně velký buffer pro předání dat.
+
+Po přepnutí na 64bitovou verzi byl engine schopen vykreslit scénu obsahující 37 736 428 objektů. Průměrný čas pro vykreslení jednoho snímku byl 86,18 ms se směrodatnou odchylkou 25,11 ms (měřeno na PC). Spotřeba paměti vzrostla na 8,3 GB převyšující velikost paměti GPU (4 GB), ale díky ořezání scény není nutné předávat všechny objekty GPU.
+
+Měření ukázala, že engine je schopen využít potenciálu výkonnějšího hardwaru a zvýšit na něm svou výkonost. Obnovovací frekvence je závislá na složitosti použitých shaderů a velikosti scény. Při pohledu na část scény, obsahující menší počet objektů, dochází ke snížení velikosti předaných dat a obnovovací frekvence se zvýší. Vzniká zde tedy prostor pro budoucí optimalizace datových struktur a zmenšení velikosti dat, reprezentující herní objekt.
+
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
