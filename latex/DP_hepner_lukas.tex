@@ -936,7 +936,9 @@ layout(early_fragment_tests) in;
 void main() {}
 \end{verbatim}
 
-Vykreslení mapy stínů s kontrolou průhlednosti trvalo v průměru 31,52~ms. Při použití prázdného shaderu na všechny objekty, trvalo vykreslení 23,58~ms. Optimalizace přináší očekávané výsledky. Při použití obou shaderů, pro průhle-dné a~neprůhledné objekty, došlo k~zhoršení času na 24,65~ms. Tento přístup však produkuje korektní stíny a~díky nízkému procentu průhledných objektů na scéně (celkový počet objektů byl 159~021 z toho 22~613 průhledných), přináší významné zrychlení. 
+Vykreslení mapy stínů s kontrolou průhlednosti trvalo v průměru o 33,67~\% déle, než když byl na všechny objekty použit prázdný shader -- optimalizace přináší očekávané výsledky. Při použití obou shaderů, pro průhledné a ne\-prů\-hled\-né objekty, došlo k zhoršení času o 4,54~\%. Tento přístup však produkuje korektní stíny a díky nízkému procentu průhledných objektů na scéně (celkový počet objektů byl 159~021 z toho 22~613 průhledných), přináší významné zrychlení.
+
+Porovnání výkonu bylo prováděno na jedné scéně, kde průhledné objekty tvořily 14,22~\% z celkového počtu objektů. V dalším testu byl proto měřen průměrný poměr průhledných a neprůhledných objektů na scéně. Vykreslovací vzdálenost byla nastavena na 15 chunků a kamerou bylo pohybováno severním směrem, tak aby docházelo ke střídání teplotních pásů a biotopů (viz sekce \ref{sec:temp_band}). Celkem bylo naměřeno 2500 záznamů. Průhledné objekty tvořily průměrně 14,67~\% z celkového počtu objektů, s výběrovou směrodatnou odchylkou 2,17~\%. Z tohoto měření lze předpokládat, že optimalizace bude přinášet obdobné výsledky i na jiných scénách.
 
 \subsection{Ořezání scény}
 
@@ -952,6 +954,8 @@ Engine proto musí provést ořezání objektů před jejich předáním grafick
 \end{figure}
 
 Při testu viditelnosti je každý roh chunku transformován do prostoru kamery. Pokud je bod viditelný, jeho souřadnice na ose x musí být z intervalu $[-1, 1]$. Jeho souřadnice na ose z musí být menší než 1 (nacházet se před blízkou plochou kamery). Souřadnice na ose y nejsou kontrolovány, protože roh chunku se může nacházet pod spodní rovinou vymezující frustum, ale jeho objekty budou přesto viditelné -- například stromy. Kontrola zda je $y < 1$ by způsobovala mizení chunků při sklonění kamery.
+
+\newpage
 
 \begin{verbatim}
 bool Scene::IsPointInView(
@@ -972,13 +976,13 @@ Při pouhé kontrole rohů by mohlo dojít k ořezání chunků, jež se nacház
 
 Pozice rohu na ose y je nejnižší bod v chunku. Pokud se hráč podívá vzhůru, všechny rohy v chunku budou oříznuty blízkou plochou kamery. Z tohoto důvodu je omezen maximální náklon kamery, který je použit při výpočtu matice pohledu. Náklon je oříznut na interval $[-90\degree, 0\degree]$ vůči vodorovné ploše.
 
-Ořezáním chunků scény byl omezen počet objektů, předávaných grafické kartě ze 159~021 na 43~605. Díky tomu se snížil čas potřebný k~vykreslení map stínů z~24,65~ms na 7,22~ms.
+Ořezáním chunků scény byl omezen počet objektů, předávaných grafické kartě ze 159~021 na 43~605. Díky tomu se 3,4x snížil čas potřebný k vykreslení mapy stínů.
 
 \section{Výsledky}
 
 Scéna na obrázku~\ref{fig:shadows_csm} je vykreslena pomocí kaskádového mapování stínů. Lze si všimnout dvou změn kaskád a zhoršení kvality stínů\footnote{Kaskády byly pro viditelnější efekt posunuty k blízké ploše frusta kamery.}. Rozlišení kaskád je nastaveno na 1024 x 1024 pixelů. S tímto rozlišením je možné pokrýt celou herní scénu v dostatečné kvalitě. Pro pokrytí celé scény v uspokojivé kvalitě, bylo potřeba zvýšit rozlišení jednoduché mapy stínů alespoň na 4096 x 4096 pixelů. Ztrátu kvality však bylo stále možné pozorovat při přiblížení se k objektu.
 
-Měření ukázala, že použitím CSM, nedochází k vysoké ztrátě výkonu. Vykreslení jednoho snímku trvalo 37,92~ms, oproti 35,31~ms při použití jednoduché mapy. Kaskádové mapování lze zároveň lépe škálovat. Přidáním dvou kaskád se výrazně zvýšila kvalita stínů v blízkosti hráče. A vykreslení snímku trvalo 41,78~ms. Zvýšením rozlišení jednoduché mapy na 8192 x 8192 pixelů, nedošlo k dostatečnému zlepšení stínů v blízkosti hráče. A vykreslení snímku trvalo déle (68,47~ms) než při použité pěti kaskád. Použití CSM se tedy jeví jako lepší řešení.
+Měření ukázala, že použitím CSM, nedochází k vysoké ztrátě výkonu. Vykreslení jednoho snímku trvalo o 7,39~\% déle než při použití jednoduché mapy. Kaskádové mapování lze zároveň lépe škálovat. Přidáním dvou kaskád se výrazně zvýšila kvalita stínů v blízkosti hráče a vykreslení snímku trvalo o 10,18~\% déle.  Zvýšením rozlišení jednoduché mapy na 8192 x 8192 pixelů, nedošlo k dostatečnému zlepšení stínů v blízkosti hráče. Vykreslení snímku trvalo o 63,88~\% déle než při použití pěti kaskád. Použití CSM se tedy jeví jako lepší řešení.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/shadows/csm}
@@ -1394,7 +1398,7 @@ Pokud se v políčku tabulky nachází dva biotopy, generátor z nich vybere jed
 
 Komplexní srážkové modely mohou brát v potaz globální směr větru, pohoří, blízkost k vodím plochám způsobujících odpar\dots ~Generátor používá nejjednodušší verzi modelu, a to mapu srážek vygenerovanou pomocí 2D šumu.
 
-\subsection{Teplotní pásy}
+\subsection{Teplotní pásy} \label{sec:temp_band}
 
 Země je rozdělena do teplotních pásů, čím více se člověk nachází na severu/jihu, tím nižší je průměrná teplota. Generátor tuto skutečnost simuluje a rozšiřuje jí na nekonečný terén. Pokud se hráč pohybuje na sever, teplota nejdříve klesá až na svoje minimum a poté opět roste.
 
