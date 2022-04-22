@@ -689,10 +689,10 @@ Mapa stínů musí být posouvána podle pozice kamery v herním světě. Objekt
 Matice pohledu a projekce transformují souřadnice světa na normalizované souřadnice zařízení (NDC – normalized device coordinates). Každá souřadnice na jedné ze tří os NDC nabývá hodnot $[-1, 1]$. Do souřadnic světa je lze převést vynásobením inverzí matic pohledu a projekce~\cite{lopgl_csm}.
 
 $$
-v_{NDC} = M_{proj} * M_{view} * v_{world}
+v_{NDC} = M_{proj} \cdot M_{view} \cdot v_{world}
 $$
 $$
-v_{world} = (M_{proj} * M_{view})^{-1} * v_{NDC}
+v_{world} = (M_{proj} \cdot M_{view})^{-1} \cdot v_{NDC}
 $$
 
 Pro vytvoření frusta světla, je nutné zjistit souřadnice rohů frusta kamery. Díky nim je možné přesně zjistit jakou část světa má frustum světla pokrývat. Souřadnice jsou vypočítané následujícím způsobem:
@@ -1201,7 +1201,7 @@ Implementace želvy se nachází ve jmenném prostoru \texttt{LSystems::Detail},
 
 \begin{itemize}
 \item Rozsah počtu provedených derivací.
-\item Variace v rotaci želvy. K úhlu, o který se má želva otočit, se přičte x * původní úhel, kde x je z [-angleVar, angleVar]. Defaultní hodnota angleVar je 0,2.
+\item Variace v rotaci želvy. K úhlu, o který se má želva otočit, se přičte \textit{x}-krát původní úhel, kde \textit{x} je z [\texttt{-angleVar}, \texttt{angleVar}]. Defaultní hodnota \texttt{angleVar} je 0,2.
 \item Výchozí velikost generovaných objektů. Lze určit rozsahem korespondujícím s počtem derivací.
 \end{itemize}
 
