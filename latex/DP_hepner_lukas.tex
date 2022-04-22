@@ -43,16 +43,25 @@
 \author{Lukáš Hepner} %jméno autora bez akademických titulů
 \supervisor{Ing. Adam Vesecký}
 \acknowledgements{Doplňte, máte-li komu a za co děkovat. V~opačném případě úplně odstraňte tento příkaz.}
-\abstractCS{Práce se zabývá tvorbou vykreslovací části herního enginu, specializujícího se na voxelovou grafiku. Engine umožňuje definovat vlastní programy pro vykreslování voxelů. Práce ukazuje využití těchto programů na grafické kartě, k~optimalizaci vykreslování světla a stínů.
+\abstractCS{
+Tato práce se zabývá tvorbou vykreslovací části herního enginu, specializujícího se na voxelovou grafiku. K jejímu vykreslení jsou připraveny shadery, na nichž je popsáno, jak zvýšit vizuální kvalitu přidáním světla a stínů. Na připravených shaderech je zároveň ukázáno, jak lze využít možností grafické karty, optimalizovat pomocí ní vykreslování a snížit zátěž procesoru.
 
-Druhá část textu se zabývá generováním terénu a vegetace, které engine vykresluje. Pozornost je věnována deterministickému chování tohoto generátoru.
+Druhá část textu se zabývá procedurálním generováním terénu a využitím L-systémů ke generování vegetace. Pozornost je věnována šumům, zaručujícím deterministické chování generátoru.
 }
-\abstractEN{Sem doplňte ekvivalent abstraktu Vaší práce v~angličtině.}
+\abstractEN{
+This thesis deals with the creation of a rendering part of a game engine that specializes in voxel graphics. For rendering the graphics, a couple of shaders were created, which are used to describe how to improve visual quality by adding lights and shadows. The prepared shaders show how to utilize the capabilities of a graphics card, use it to optimize rendering and reduce the processor load.
+
+The second part of the text deals with procedural generation and possible uses of L-systems to generate vegetation. Attention is focused on noises that guarantee the deterministic behavior of the generator.
+}
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
-\keywordsCS{Nahraďte seznamem klíčových slov v češtině oddělených čárkou.}
-\keywordsEN{Nahraďte seznamem klíčových slov v angličtině oddělených čárkou.}
-% \website{http://site.example/thesis} %volitelná URL práce, objeví se v tiráži - úplně odstraňte, nemáte-li URL práce
+\keywordsCS{
+vykreslovací engine, voxelová grafika, OpenGL, shadery, procedurální generování, L-systémy
+}
+\keywordsEN{
+rendering engine, voxel graphics, OpenGL, shaders, procedural generation, L-systems
+}
+\website{https://github.com/heppyn/MasterThesis} %volitelná URL práce, objeví se v tiráži - úplně odstraňte, nemáte-li URL práce
 
 \begin{document}
 
@@ -60,26 +69,27 @@ Druhá část textu se zabývá generováním terénu a vegetace, které engine 
 % \newacronym{FIT}{FIT}{Fakulta informa{\v c}n{\' i}ch technologi{\' i}}
 
 \begin{introduction}
+V posledním desetiletí zažívají velký rozpuk hry s voxelovou grafikou\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Tyto hry se často zaměřují na příležitostné hráče, kteří se ke hře vrací, aby farmařili, budovali své příbytky nebo prozkoumávali procedurálně generovaný svět. Ne\-jen žánry, ale i způsob vývoje prošel dramatickým vývojem.
+
 První počítačové hry byly tvořeny jako jeden produkt, úzce spjatý s hardwarem, na který cílil. Při změně hardwaru bylo nutné začít s vývojem znovu, tak aby byly maximálně využity jeho zdroje. Změna přišla v půlce devadesátých let, kdy se hry začaly dělit na své základní komponenty a~herní mechaniky.
 
 Termín „herní engine“ vznikl v souvislosti s hrami jako je Doom vyvinutý společností id Software. Architektura Doomu poměrně dobře odděluje své základní komponenty (jako je trojrozměrný vykreslovací systém, detekce kolizí nebo audio systém) od grafiky, herních světů a pravidel hry. Hodnota tohoto rozdělení byla viditelná, když si ostatní vývojáři začali licencovat hry a předělávat je do nových produktů, přidáním nové grafiky, světů, zbraní, postav, vozidel a pravidel hry s pouze minimálními změnami v částech enginu~\cite{gea_11}.
 
-Moderní herní enginy umožňují vyvíjet aplikace pro desktop (Linux, \mbox{macOS}, Windows), mobilní zařízení (Android, iOS) i webové (HTML5) platformy. Poskytují obsáhlou sadu nástrojů umožňující programátorovi zabývat se tvorbou herního obsahu, místo znovu objevování kola~\cite{godot_intro}. Enginy často podporují tvorbu 2D i 3D her.
+Moderní herní enginy umožňují vyvíjet aplikace pro desktop (Windows, Linux, \mbox{macOS}), mobilní zařízení (Android, iOS) i webové (HTML5) platformy. Poskytují obsáhlou sadu nástrojů umožňující programátorovi zabývat se tvorbou herního obsahu, místo znovu objevování kola~\cite{godot_intro}. Enginy často podporují tvorbu 2D i 3D her.
 
 S rozvojem her, s otevřeným světem vznikaly větší a větší nároky na designéry, musející vytvářet detaily každého zákoutí světa, do kterého se může hráč dostat. Některé hry proto využívají metody procedurálního generování obsahu.
 
-V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty následně vydat pro všechny hráče. Opačným směrem se vydávají hry, které generují veškerý obsah v průběhu hry. Touto technikou se nejvíce proslavila hra Minecraft, která umožňuje hráči prozkoumávat nekončící terén, generovaný na základě seedu světa. Každý hráč tak může objevovat svůj vlastní svět, lišící se od všech ostatních. 
+V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty následně vydat pro všechny hráče. Opačným směrem se vydávají hry, které generují veškerý obsah v průběhu hry. Touto technikou se nejvíce proslavila hra Minecraft, která umožňuje hráči prozkoumávat nekončící terén, generovaný na základě seedu -- semínka světa. Každý hráč tak může objevovat svůj vlastní svět, lišící se od všech ostatních. 
 
-\end{introduction}
+\section{Cíle}
 
-\chapter{Cíle}
-
-Cílem práce je vytvořit engine vykreslující voxelovou grafiku\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Pro část výpoč-tu a vykreslování bude využita grafická karta.
+Cílem práce je vytvořit engine vykreslující voxelovou grafiku. Pro část výpoč-tu a vykreslování bude využita grafická karta.
 
 Hráči bude umožněno pohybovat se libovolným směrem po scéně. Engine proto musí dynamicky generovat svět na základě hráčovy pozice. Části světa, které hráč opustil a jsou mimo jeho vykreslovací vzdálenost, budou uvolněny z paměti. Pro optimální běh na hardwaru s různou výkonností bude možné zvětšit či zmenšit vykreslovanou oblast.
 
-Svět je generovaný na základě seedu -- semínka. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným seedem. Procedurální generátor bude vytvářet svět, co nejvíce připomínající venkovní prostředí, jaké lze nalézt na Zemi. Svět bude obsahovat různé biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu nebo exportovat do souboru.
+Svět je generovaný na základě seedu. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným seedem. Procedurální generátor bude vytvářet svět, co nejvíce připomínající venkovní prostředí, jaké lze nalézt na Zemi. Svět bude obsahovat různé biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu nebo exportovat do souboru.
 
+\end{introduction}
 
 \chapter{Technologie}
 
