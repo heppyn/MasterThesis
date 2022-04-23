@@ -46,9 +46,9 @@
 \acknowledgements{Tímto chci poděkovat svému vedoucímu, Ing. Adamu Veseckému, za jeho rady, vedení a skvělý předmět APH, který mě k této práci přivedl. Dále bych rád poděkoval své rodině za bezmeznou podporu během studia a psaní této práce. V neposlední řadě bych rád poděkoval svým kamarádům, s kterými jsem mohl prožít tuto éru života.
 }
 \abstractCS{
-Tato práce se zabývá tvorbou vykreslovací části herního enginu, specializujícího se na voxelovou grafiku. K jejímu vykreslení jsou připraveny shadery, na nichž je popsáno, jak zvýšit vizuální kvalitu přidáním světla a stínů. Na připravených shaderech je zároveň ukázáno, jak lze využít možností grafické karty, optimalizovat pomocí ní vykreslování a snížit zátěž procesoru.
+Tato práce se zabývá tvorbou vykreslovací části herního enginu specializujícího se na voxelovou grafiku. K jejímu vykreslení jsou připraveny shadery, na nichž je popsáno, jak zvýšit vizuální kvalitu přidáním světla a stínů. Na připravených shaderech je zároveň ukázáno, jak lze využít možností grafické karty, optimalizovat pomocí ní vykreslování a snížit zátěž procesoru.
 
-Druhá část textu se zabývá procedurálním generováním terénu a využitím L-systémů ke generování vegetace. Pozornost je věnována šumům, zaručujícím deterministické chování generátoru.
+Druhá část textu se zabývá procedurálním generováním terénu a využitím L-systémů ke generování vegetace. Pozornost je věnována šumům zaručujícím deterministické chování generátoru.
 }
 \abstractEN{
 This thesis deals with the creation of a rendering part of a game engine that specializes in voxel graphics. For rendering the graphics, a couple of shaders were created, which are used to describe how to improve visual quality by adding lights and shadows. The prepared shaders show how to utilize the capabilities of a graphics card, use it to optimize rendering and reduce the processor load.
@@ -196,7 +196,7 @@ Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují h
 
 Každý chunk obsahuje dvě pole herních objektů, rozdělené na průhledné a neprůhledné. Herní objekty se mohou překrývat a mít libovolný posun vůči počátku scény. Z důvodu úspory paměti nejsou rozděleny na sub-voxely, které se nepřekrývají.
 
-Velikost chunku (šířka a hloubka) je 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata, obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
+Velikost chunku (šířka a hloubka) je 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
 
 Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
 
@@ -1507,11 +1507,11 @@ V této kapitole je shrnuto testování, které probíhalo při vývoji enginu a
 
 Pro unit testování byl zvolen testovací framework Catch2~\cite{catch2}. Mezi jeho výhody patří možnost poskytnutí vlastní main funkce. Spuštění testů bylo možné navázat na spuštění enginu (mohou běžet i samostatně). Tato možnost byla zapnuta v defaultním nastavení a pomohla urychlit vývoj, díky včasnému odhalení chyb, které by se projevily vizuálně. Mezi tyto chyby patří hlavně zpracování zdrojů enginu, které nemůže zachytit kompilátor. Například před\-zpracování shaderů před jejich překladem (vložení konstant do zdrojového kódu shaderu) nebo generace L-systémů.
 
-Automatizované testy jsou ve složce \textit{tests} a jejich struktura odpovídá struktuře zdrojových souborů (složka \textit{src}), které testují. Projekt obsahuje 340 asercí, rozdělených do 14 skupin podle souborů, které testují. Pro spuštění testů byla vytvořena nová konfigurace -- \textit{Test}, která na základě podmíněného překladu spustí pouze testy.
+Automatizované testy jsou ve složce \textit{tests} a jejich struktura odpovídá struktuře zdrojových souborů (složka \textit{src}), které testují. Projekt obsahuje 340 asercí rozdělených do 14 skupin podle souborů, které testují. Pro spuštění testů byla vytvořena nová konfigurace -- \textit{Test}, která na základě podmíněného překladu spustí pouze testy.
 
 \section{Vizuální testování}
 
-Generátor terénu je komplexní systém a jeho výstup není přesně definovaný -- může se měnit se změnou jeho parametrů. Testování vyžadovalo opakované spouštění hry a manuální kontrolu požadovaných výsledků. Vizuální kontrola je časově náročná a je v ní možné udělat chybu, vzhledem k množství dat, která jsou zobrazena (hory, stromy, přechody biotopů, \dots), někdy také nemožná -- vlhkost a teplota nejsou zobrazeny\footnote{Tento problém se v praxi často řeší debugovací obrazovkou, která zobrazuje hráči neviditelné údaje.}, ale interpretovány generátorem.
+Generátor terénu je komplexní systém a jeho výstup není přesně definovaný -- může se měnit se změnou jeho parametrů. Testování vyžadovalo opakované spouštění hry a manuální kontrolu požadovaných výsledků. Vizuální kontrola je časově náročná a je v ní možné udělat chybu, vzhledem k množství dat, která jsou zobrazena (hory, stromy, přechody biotopů, \dots). Někdy také nemožná -- vlhkost a teplota nejsou zobrazeny\footnote{Tento problém se v praxi často řeší debugovací obrazovkou, která zobrazuje hráči neviditelné údaje.}, ale interpretovány generátorem.
 
 Z těchto důvodů byl vyvinut nástroj Map Visualizer~\cite{map_vis}, který umožňuje načíst soubor exportovaný generátorem a vizualizovat ho jako mapu. Některé z těchto map již byly v textu zobrazeny. Nástrojem je možné vizualizovat:
 
@@ -1527,7 +1527,7 @@ Vizualizátor dokáže načíst libovolně velkou scénu a každý blok zobrazuj
 
 \section{Měření výkonu}
 
-K měření výkonu byla použita dvě zařízení, jejíchž parametry jsou zobrazeny v tabulce~\ref{tab:hw}.
+K měření výkonu byla použita dvě zařízení, jejichž parametry jsou zobrazeny v tabulce~\ref{tab:hw}.
 
 \begin{table}\centering
 \caption[Testovací zařízení]{Testovací zařízení}\label{tab:hw}
@@ -1576,9 +1576,9 @@ Měření ukázala, že engine je schopen využít potenciálu výkonnějšího 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % %  
 
 \begin{conclusion}
-Hlavním cílem práce bylo navrhnout a vytvořit renderovací engine, vykreslující voxelovou grafiku, a jeho schopnosti otestovat pomocí vlastního generátoru terénu, který s ním bude komunikovat.
+Hlavním cílem práce bylo navrhnout a vytvořit renderovací engine vykreslující voxelovou grafiku a jeho schopnosti otestovat pomocí vlastního generátoru terénu, který s ním bude komunikovat.
 
-Pro engine byla implementována sada shaderů, využívající možnosti pře\-su\-nout výpočty na grafickou kartu. Tyto shadery umožňují nasvítit scénu globální zdrojem světla nebo světlem bodovým. Ke zvýšení vizuální kvality byl vytvořen shader přidávající objektům stíny. Uživateli je umožněno vytvářet vlastní shadery a použít je k vykreslení scény.
+Pro engine byla implementována sada shaderů, využívající možnosti pře\-su\-nout výpočty na grafickou kartu. Tyto shadery umožňují nasvítit scénu globálním zdrojem světla nebo světlem bodovým. Ke zvýšení vizuální kvality byl vytvořen shader přidávající objektům stíny. Uživateli je umožněno vytvářet vlastní shadery a použít je k vykreslení scény.
 
 Engine je schopen zpracovat stovky tisíc objektů, množství dostatečné pro zobrazení rozsáhlého venkovního prostředí. Velikost scény je možné škálovat a snížit tak nároky na CPU a GPU. Samostatně lze škálovat kvalitu stínů vykresleného snímku, podle možností grafické karty.
 
@@ -1593,7 +1593,7 @@ Scénu je možné exportovat do souboru ve formátu JSON. Možnosti použití ex
 Třídy enginu jsou otestovány unit testy. Na generátoru terénu byla uká\-zá\-na možnost, jak testovat jeho výstup pomocí dodatečných vizuálních nástrojů.
 
 \section{Možnosti rozšíření}
-Práce se specializuje pouze na úzkou oblast funkcí, které herní enginy poskytují. Existuje, proto nespočet možností, jak projekt rozšířit. Mezi ně patří:
+Práce se specializuje pouze na úzkou oblast funkcí, které herní enginy poskytují. Existuje proto nespočet možností, jak projekt rozšířit. Mezi ně patří:
 
 \begin{itemize}
 \item Kolize a hráč --- Prototypu hráče je umožněno pohybovat se libovolně po scéně. To znamená i skrze bloky. Pro využití ve hře, by bylo nutné implementovat kolizní systém a doprogramovat mechaniky hráčem ovládané postavy.
