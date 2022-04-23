@@ -224,8 +224,6 @@ Scéna je složena z kusů terénu (třída \texttt{Chunk}), obsahující herní
 
 Každý herní objekt lze reprezentovat jako matici 4x4 obsahující informace o posunu vůči počátku světa, škálování a textuře.
 
-\todo{dopsat informace o model matrix}
-
 Převod herního objektu na matici:
 
 \begin{verbatim}
@@ -303,9 +301,6 @@ Pokud má být engine schopný vykreslovat desetitisíce objektů, je tato pamě
 Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\texttt{float} je zvolen pro jednodušší komunikaci s grafickou kartou -- všechna předaná data mají formát float). Komponenta v paměti zabírá pouhých 8 B. Velikost herního objektu byla redukována o 904 B.
 
 \texttt{Mesh} není dále používána jako komponenta herního objektu. Její implementace ze jmenného prostoru \texttt{Renderer}, kterou komponenta \texttt{Mesh} obsahuje jako svůj atribut, je použita pro vykreslení všech objektů se stejnou geometrií najednou. Vykreslení objektů zajišťuje třída \texttt{CubeRenderer}, viz obrázek~\ref{fig:go_components_fw}.
-
-\todo{nutnost spritesheetu}
-% Maximální počet texturovacích jednotek https://stackoverflow.com/questions/46426331/number-of-texture-units-gl-texturei-in-opengl-4-implementation-in-visual-studi#:~:text=Having%20looked%20at%20the%20implementation,31%20(32%20in%20total).
 
 \section{Vyřazení neviditelných částí objektu}
 
@@ -526,7 +521,6 @@ V levé části obrázku~\ref{fig:shadows_intro} lze vidět scénu nasvícenou g
 	\includegraphics[width=\textwidth]{images/shadows/intro}
 	\caption[Porovnání scnény bez stínu a se stíny]{Porovnání scnény bez stínu a se stíny}\label{fig:shadows_intro}
 \end{figure}
-\todo{Moc siroky obrazek}
 
 Trasování tisíců paprsků světla v reálném čase je výpočetně neúnosné. Proto je použita technika mapování stínů, využívající hloubkového bufferu grafické karty. Scéna je nejprve vykreslena z pohledu světla a hodnoty hloubky fragmentů uloženy do textury nazývané mapa stínů.
 
@@ -764,8 +758,6 @@ for (const auto& v : corners) {
 Před vytvořením matice projekce je potřeba upravit proměnnou \texttt{minZ} a~\texttt{maxZ}, představující blízkou a vzdálenou plochu frusta. S aktuální hodnotou by stíny vrhaly pouze objekty viditelné hráčem. Například stín koruny stromu by se objevil pouze, pokud by ji hráč viděl.
 
 Posunuté hranice frustra by měly pokrývat všechny objekty na scéně. Příliš velkorysým posunutím však dojde ke ztrátě přesnosti mapy stínů. Hranice by tedy měly být posunuté podle aktuální scény, například aby byl vykreslen stín pod nejvyšším stromem, u jehož paty hráč stojí.
-
-\todo{mozna zahodit}
 
 \begin{verbatim}
 if (minZ < 0) 
