@@ -296,7 +296,7 @@ Pokud má být objekt vykreslitelný musí obsahovat komponentu \texttt{Transfor
 Pokud má být engine schopný vykreslovat desetitisíce objektů, je tato paměťová náročnost neúnosná. Komponentu \texttt{Mesh} není možné odebrat z her-ního objektu, protože obsahuje pozici na textuře, lišící se mezi objekty. Pozice na textuře představuje čtverec, který bude vybrán z textury a aplikován na povrch krychle. Všechny objekty mají texturu čtverce. Díky tomu je možné definovat čtverec na počátku textury a jeho posun uložit do samostatné komponenty -- \texttt{SpritesheetTex}. Toto nové rozložení je znázorněno na obrázku~\ref{fig:go_components_fw}.
 
 \begin{figure}\centering
-	\includegraphics[width=\textwidth]{images/go_components_fw_2}
+	\includegraphics[width=\textwidth]{images/go_components_fw}
 	\caption[Použití vzoru Flyweight]{Použití vzoru Flyweight}\label{fig:go_components_fw}
 \end{figure}
 
