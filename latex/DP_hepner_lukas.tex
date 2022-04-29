@@ -25,7 +25,6 @@
 % \makeglossaries
 
 \usepackage{gensymb} %symbol stupne
-\usepackage{todonotes}
 \usepackage{tablefootnote}
 \usepackage{pdfpages}
 
@@ -48,12 +47,12 @@
 \abstractCS{
 Tato práce se zabývá tvorbou vykreslovací části herního enginu specializujícího se na voxelovou grafiku. K jejímu vykreslení jsou připraveny shadery, na nichž je popsáno, jak zvýšit vizuální kvalitu přidáním světla a stínů. Na připravených shaderech je zároveň ukázáno, jak lze využít možností grafické karty, optimalizovat pomocí ní vykreslování a snížit zátěž procesoru.
 
-Druhá část textu se zabývá procedurálním generováním terénu a využitím L-systémů ke generování vegetace. Pozornost je věnována šumům zaručujícím deterministické chování generátoru.
+Druhá část textu se zabývá procedurálním generováním terénu a využitím L-systémů ke generování vegetace. Pozornost je věnována šumovým funkcím zaručujícím deterministické chování generátoru.
 }
 \abstractEN{
 This thesis deals with the creation of a rendering part of a game engine that specializes in voxel graphics. For rendering the graphics, a couple of shaders were created, which are used to describe how to improve visual quality by adding lights and shadows. The prepared shaders show how to utilize the capabilities of a graphics card, use it to optimize rendering and reduce the processor load.
 
-The second part of the text deals with procedural generation and possible uses of L-systems to generate vegetation. Attention is focused on noises that guarantee the deterministic behavior of the generator.
+The second part of the text deals with procedural generation and possible uses of L-systems to generate vegetation. Attention is focused on noise functions that guarantee the deterministic behavior of the generator.
 }
 \placeForDeclarationOfAuthenticity{V~Praze}
 \declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
@@ -71,13 +70,13 @@ rendering engine, voxel graphics, OpenGL, procedural generation, L-systems
 % \newacronym{FIT}{FIT}{Fakulta informa{\v c}n{\' i}ch technologi{\' i}}
 
 \begin{introduction}
-V posledním desetiletí zažívají velký rozpuk hry s voxelovou grafikou\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Tyto hry se často zaměřují na příležitostné hráče, kteří se ke hře vrací, aby farmařili, budovali své příbytky nebo prozkoumávali procedurálně generovaný svět. Ne\-jen žánry, ale i způsob vývoje prošel dramatickým vývojem.
+V posledním desetiletí zažívají velký rozkvět hry s voxelovou grafikou\footnote{Voxel je bod v prostoru, vykreslený jako krychle.}. Mezi jejich zástupce patří Minecraft, Teardown nebo Staxel. Tyto hry se často zaměřují na příležitostné hráče, kteří se ke hře vrací, aby farmařili, budovali své příbytky nebo prozkoumávali procedurálně generovaný svět. Ne\-jen žánry, ale i způsob vývoje prošel dramatickým vývojem.
 
 První počítačové hry byly tvořeny jako jeden produkt, úzce spjatý s hardwarem, na který cílil. Při změně hardwaru bylo nutné začít s vývojem znovu, tak aby byly maximálně využity jeho zdroje. Změna přišla v půlce devadesátých let, kdy se hry začaly dělit na své základní komponenty a~herní mechaniky.
 
 Termín „herní engine“ vznikl v souvislosti s hrami jako je Doom vyvinutý společností id Software. Architektura Doomu poměrně dobře odděluje své základní komponenty (jako je trojrozměrný vykreslovací systém, detekce kolizí nebo audio systém) od grafiky, herních světů a pravidel hry. Hodnota tohoto rozdělení byla viditelná, když si ostatní vývojáři začali licencovat hry a předělávat je do nových produktů, přidáním nové grafiky, světů, zbraní, postav, vozidel a pravidel hry s pouze minimálními změnami v částech enginu~\cite{gea_11}.
 
-Moderní herní enginy umožňují vyvíjet aplikace pro desktop (Windows, Linux, \mbox{macOS}), mobilní zařízení (Android, iOS) i webové (HTML5) platformy. Poskytují obsáhlou sadu nástrojů umožňující programátorovi zabývat se tvorbou herního obsahu, místo znovu objevování kola~\cite{godot_intro}. Enginy často podporují tvorbu 2D i 3D her.
+Moderní herní enginy (Unity, Unreal, GameMaker, Godot, \dots) umožňují vyvíjet aplikace pro desktop (Windows, Linux, \mbox{macOS}), mobilní zařízení (Android, iOS) i webové (HTML5) platformy. Poskytují obsáhlou sadu nástrojů umožňující programátorovi zabývat se tvorbou herního obsahu, místo znovu objevování kola~\cite{godot_intro}. Enginy často podporují tvorbu 2D i 3D her.
 
 S rozvojem her, s otevřeným světem vznikaly větší a větší nároky na designéry, musející vytvářet detaily každého zákoutí světa, do kterého se může hráč dostat. Některé hry proto využívají metody procedurálního generování obsahu.
 
@@ -85,11 +84,11 @@ V rámci vývoje lze generovat drobné části světa, jako je vegetace, a ty n�
 
 \section{Cíle}
 
-Cílem práce je vytvořit engine vykreslující voxelovou grafiku. Pro část výpoč-tu a vykreslování bude využita grafická karta.
+Cílem práce je vytvořit engine vykreslující voxelovou grafiku. Pro část výpoč\-tů a vykreslování bude využita grafická karta.
 
 Hráči bude umožněno pohybovat se libovolným směrem po scéně. Engine proto musí dynamicky generovat svět na základě hráčovy pozice. Části světa, které hráč opustil a jsou mimo jeho vykreslovací vzdálenost, budou uvolněny z paměti. Pro optimální běh na hardwaru s různou výkonností bude možné zvětšit či zmenšit vykreslovanou oblast.
 
-Svět je generovaný na základě seedu. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným seedem. Procedurální generátor bude vytvářet svět, co nejvíce připomínající venkovní prostředí, jaké lze nalézt na Zemi. Svět bude obsahovat různé biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu nebo exportovat do souboru.
+Svět bude generovaný na základě seedu. Všechny části světa musí být stejné při opakovaném běhu generátoru se stejným seedem. Procedurální generátor bude vytvářet svět, co nejvíce připomínající venkovní prostředí, jaké lze nalézt na Zemi. Svět bude obsahovat různé biotopy, podle nichž se bude měnit vegetace, která bude taktéž procedurálně generovaná. Výsledek běhu bude možné okamžitě zobrazit pomocí enginu nebo exportovat do souboru.
 
 \end{introduction}
 
@@ -97,11 +96,11 @@ Svět je generovaný na základě seedu. Všechny části světa musí být stej
 
 Na trhu se nachází celá řada herních enginů, jejichž cenové politiky umožňují vytvářet hry jak nezávislým vývojářům, kteří mohou využít enginy dostupné zcela zdarma jako je Godot či Cocos2D, případně jsou zpoplatněné autorskými poplatky při dosažení zisku, jako je CryEngine, Unreal Engine či Unity~\cite{engines}. Herní studia často využívají placených licencí, zajišťujících podporu od tvůrce enginu.
 
-Hry s voxelovou grafikou nemusejí vznikat jen v enginech pro ně tvořených, ale i v enginech vykreslujících polygonovou grafiku. Jejich výhodou je rozsah projektů, které díky nim mohou vzniknout. To vede k větším investicím a~aktivnějšímu vývoji. Tyto enginy poskytují komplexnější sadu nástrojů pro vývoj a na trhu převažují nad enginy vykreslujícími specifický druh grafiky.
+Hry s voxelovou grafikou nemusejí vznikat jen v enginech pro ně tvořených, ale i v enginech vykreslujících polygonovou grafiku. Výhodou jejich obecnosti je větší rozsah projektů, které díky nim mohou vzniknout. To vede k větším investicím a~aktivnějšímu vývoji. Tyto enginy poskytují komplexnější sadu nástrojů pro vývoj a na trhu převažují nad enginy vykreslujícími specifický druh grafiky.
 
 I přesto na trhu existují enginy voxelové. Jedním ze zástupců open source projektů je voxel.js, určený pro vývoj her běžících v prohlížeči. Jak název napovídá, vývoj her probíhá v JavaScriptu~\cite{voxel_js}.
 
-Placeným zástupce je Voxel Farm~\cite{voxel_farm}. Jeho výhodou je výkonnost a mož-nost integrace s Unity nebo Unreal enginem. Zatímco ve voxel.js lze vytvářet hry podobné Minecraftu, Voxel Farm umožňuje práci s menšími voxely, díky němuž může svět vypadat více fotorealisticky. Hráč je do světa vtažen díky možnosti destrukce terénu a interakce s objekty, probíhající na úrovni voxelů. Tato vlastnost je velice cenná a přitahuje proto studia jako je EA nebo Take-Two Interactive~\cite{voxel_engines}.
+Placeným zástupce je Voxel Farm~\cite{voxel_farm}. Jeho výhodou je vyšší výkonnost, než které dosahuje voxel.js, a možnost integrace s Unity nebo Unreal enginem. Zatímco ve voxel.js lze vytvářet hry podobné Minecraftu, Voxel Farm umožňuje práci s voxely s menším měřítkem (scéna jich tím pádem obsahuje větší množství), díky němuž může svět vypadat více realisticky. Hráč je do světa vtažen díky možnosti destrukce terénu a interakce s objekty, probíhající na úrovni voxelů. Tato vlastnost je velice cenná a přitahuje proto studia jako je EA nebo Take-Two Interactive~\cite{voxel_engines}.
 
 \section{Architektura herních enginů}
 
@@ -192,7 +191,7 @@ Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objek
 
 Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu~\cite{ecs}. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a~jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
 
-Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují herní objekty. Správu scény zajišťuje třída \texttt{Scene}, která ukládá chunky do \textit{std::map} využívající jejich pozici jako klíč. Rozdělení na chunky zrychluje operace jako je ořezání viditelné herní plochy, po kterém třída \texttt{Scene} upraví pole ukazatelů na data objektů, které mají být vykresleny.
+Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují herní objekty. Správu scény zajišťuje třída \texttt{Scene}, která ukládá chunky do \textit{std::map} (seřazená asociativní mapa) využívající jejich pozici jako klíč. Pozice chunku -- \textit{glm::vec2} může být použita jako klíč díky porovnávacímu operátoru, který vektory řadí lexikograficky po složkách. Rozdělení na chunky zrychluje operace jako je ořezání viditelné herní plochy, po kterém třída \texttt{Scene} upraví pole ukazatelů na data objektů, které mají být vykresleny.
 
 Každý chunk obsahuje dvě pole herních objektů, rozdělené na průhledné a neprůhledné. Herní objekty se mohou překrývat a mít libovolný posun vůči počátku scény. Z důvodu úspory paměti nejsou rozděleny na sub-voxely, které se nepřekrývají.
 
@@ -304,7 +303,7 @@ Komponenta \texttt{SpritesheetTex} obsahuje dvě čísla ve formátu float (\tex
 
 \section{Vyřazení neviditelných částí objektu}
 
-Část scény tvoří krychle mající všech šest stěn vyplněných neprůhlednou texturou. Při pohledu na krychli může hráč vidět maximálně tři její stěny najednou (z určitých úhlů pouze jednu nebo dvě). Minimálně 50~\% každé krychle je vykreslováno zbytečně. OpenGL je schopno vyřadit stěny které směřují pryč od hráče z vykreslovacího procesu a snížit počet volání fragment shaderu. Tato technika se nazývá face culling~\cite{lopgl_faceculling}.
+Část scény tvoří krychle mající všech šest stěn vyplněných neprůhlednou texturou. Při pohledu na krychli může hráč vidět maximálně tři její stěny najednou (z určitých úhlů pouze jednu nebo dvě). Minimálně 50~\% každé krychle je vykreslováno zbytečně. OpenGL je schopno vyřadit stěny které směřují pryč od hráče z vykreslovacího procesu a snížit počet volání fragment shaderu. Tato technika se nazývá \textit{face culling}~\cite{lopgl_faceculling}.
 
 K rozpoznání stěn (trojúhelníků), které směřují pryč od hráče OpenGL používá pořadí jeho vrcholů. Vrcholy mohou být definované ve směru nebo protisměru hodinových ručiček  -- obrázek~\ref{fig:winding_order}. Při pohledu na grafické primitivum z druhé strany, se změní pořadí jeho vrcholů. V~základním nastavení OpenGL, jsou primitiva s vrcholy definovanými po směru hodinových ručiček, považována za směřující k hráči.
 
@@ -454,7 +453,7 @@ Pokud dojde ke čtení z textury, která není navázána, bude vrácena černá
 
 \section{Zdroje světla}
 
-Aktuální implementace představuje bodový zdroj světla, jehož intenzita neklesá s uraženou vzdáleností. Tento model nereprezentuje reálné chování světla. Zavedené jsou dva nové druhy světla:
+Výše popsaná implementace představuje bodový zdroj světla, jehož intenzita neklesá s uraženou vzdáleností. Tento model nereprezentuje reálné chování světla. Zavedené jsou dva nové druhy světla:
 
 \begin{itemize}
 \item Globální osvětlení --- Představuje zdroj světla nekonečně vzdálený od scény, jehož paprsky jsou rovnoběžné a jeho intenzita se nemění. Jeho pomocí lze modelovat objekty jako je Slunce. 
@@ -626,7 +625,7 @@ Problém lze vyřešit posunutím mapy stínů (nebo povrchu objektu) tak, aby s
 	\caption[Zamezení vzniku stínového akné]{Zamezení vzniku stínového akné}\label{fig:shadows_diag_acne_fix}
 \end{figure}
 
-Pro posun mapy lze zvolit konstantu.
+Pro posun mapy lze experimentálním způsobem zvolit konstantu.
 
 \begin{verbatim}
 float bias = 0.0085;
@@ -1172,8 +1171,8 @@ void LSystems::Detail::Turtle::MoveForward(float dz) {
 Následující symboly abecedy mají speciální význam pro jejich interpretaci.
 
 \begin{itemize}
-\item U a u --- Posuň želvu nahoru.
-\item F a f --- Posuň želvu dopředu.
+\item U/u --- Posuň želvu nahoru.
+\item F/f --- Posuň želvu dopředu.
 \item x --- Zmenši blok produkovaný želvou.
 \item X --- Zvětši blok produkovaný želvou.
 \item S --- Nastav původní velikost bloku produkovaného želvou.
@@ -1295,15 +1294,15 @@ Generování částí nebo celých herních světů může výrazně zvýšit ry
 
 Při generování předem je možné využít sofistikovanějších technik, které zapříčiňují delší běh generátoru, nebo vyžadují znalost celé mapy. Pokud se například hra odehrává na ostrově, je možné zvolit body na pobřeží, kde budou vyúsťovat řeky. Následně z nich lze vytvořit říční síť na základě sklonu terénu. Generátor běžící v průběhu hry si toto dovolit nemůže a musí každý kus terénu generovat nezávisle na jeho okolí.
 
-K využití maximálního potenciálu procedurálního generování a vytvoření unikátního světa pro každého hráče, jsou využívány náhodné generátory čísel. Ty však nemohou být zcela náhodné. Pokud by hráč objevil horu a rozhodl se jí obejít z druhé strany, musí se objevit na její protější straně. Z tohoto důvodu je nutné, aby generátory produkovaly pokaždé stejnou sekvenci čísel – PRNG (Pseudo Random Number Generator)~\cite{prng}.
+K využití maximálního potenciálu procedurálního generování a vytvoření unikátního světa pro každého hráče, jsou využívány náhodné generátory čísel. Ty však nemohou být zcela náhodné (\textit{true random number generator}). Pokud by hráč objevil horu a rozhodl se jí obejít z druhé strany, musí se objevit na její protější straně. Z tohoto důvodu je nutné, aby generátory produkovaly pokaždé stejnou sekvenci čísel – PRNG (Pseudo Random Number Generator)~\cite{prng}.
 
 Nevýhodou PRNG je vnitřní stav, který se mění s každým vyprodukovaným číslem. Pro zaručení totožných výsledků musí být sekvence čísel použita pokaždé pro stejné operace, nebo musí být PRNG re-seedován.
 
-Místo PRNG lze využít šumy. Šum v jistých aspektech připomíná hashovací funkce -- ze vstupu produkují zdánlivě náhodný výstup. Avšak šum je schopen, na rozdíl od nich, do výsledku zakomponovat seed. Vstup může být například pozice na mapě, kde má být vygenerovaný strom. Pokud se však změní seed hry, rozmístění stromů bude zcela odlišné.
+Místo PRNG lze využít šumy. Šum v jistých aspektech připomíná hashovací funkce -- ze vstupu produkují zdánlivě náhodný výstup. Stejně jako může být výstup hashovací funkce ovlivněn inicializačním vektorem, do výstupu šumové funkce může být zakomponován seed. Vstup může být například pozice na mapě, kde má být vygenerovaný strom. Pokud se však změní seed hry, rozmístění stromů bude zcela odlišné.
 
 \section{Náhodný šum}
 
-Pro generování náhodného šumu mohou být použity hashovací funkce jako MD5 nebo SHA1. Jejich požadavky byly kladeny především na kvalitu, kvůli kryptografickému použití. Kvalita funkcí pro šum nemusí být takto dobrá, důraz je kladen především na rychlost. Engine používá implementaci Squirrela Eiserloha~\cite{sqr_noise}.
+Pro generování náhodného šumu mohou být použity hashovací funkce jako MD5 nebo SHA1. Jejich požadavky byly kladeny především na zdánlivou ireverzibilitu, kvůli kryptografickému použití. Kvalita funkcí pro šum nemusí být takto dobrá, důraz je kladen především na rychlost. Engine používá implementaci Squirrela Eiserloha~\cite{sqr_noise}.
 
 Funkce transformuje vstupní číslo pomocí přičítání a násobení velkým prvočíslem, bitovým posuny a XORy. Po prvním vynásobení je k číslu přičten seed, výstup se tak na něm stává závislým. Pro vytvoření šumu ze souřadnic o více dimenzích jsou použita prvočísla 198491317 a 6542989, kterými jsou souřadnice na ose y a z vynásobeny a následně sečteny.
 
@@ -1336,7 +1335,7 @@ Pokud má terén vypadat přirozeně, musí na sebe plynule navazovat. Použití
 	\caption[Terén vygenerovaný pomocí náhodného šumu]{Terén vygenerovaný pomocí náhodného šumu}\label{fig:random_terrain}
 \end{figure}
 
-Jedním ze šumů, jehož výstup se plynule mění, je Perlinův šum, vyvinutým Kenem Perlinem v roce 1983 pro generování přirozeně vypadajících textur. Tuto texturu lze použít například jako výškovou mapu terénu. Ken Perlin v~roce 2002 upravil původní algoritmus, aby byl rychlejší a neobsahoval viditelné artefakty~\cite{perlin_noise}. Tento algoritmus se nazývá Vylepšený Perlinův šum a je používán do dnes.
+Jedním ze šumů, jehož výstup se plynule mění, je Perlinův šum, vyvinutým Kenem Perlinem v roce 1983 pro generování přirozeně vypadajících textur. Tuto texturu lze použít například jako výškovou mapu terénu. Ken Perlin v~roce 2002 upravil původní algoritmus, aby byl rychlejší a neobsahoval viditelné artefakty~\cite{perlin_noise}. Tento algoritmus se nazývá Vylepšený Perlinův šum a je používán dodnes.
 
 V roce 2001 Perlin vyvinul následovníka Perlinova šum, Simplex šum. Tento šum jím byl patentován, nicméně i přes své výhody se na trhu neprosadil. Tento patent vypršel 8.1.2022~\cite{patent} a nyní může být volně používán. Jeho výhody jsou~\cite{simplex_perlin}:
 
@@ -1350,7 +1349,7 @@ Na obrázku~\ref{fig:perlin_simplex} je zobrazen terén vygenerovaný Perlinový
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/world_gen/perlin_simplex}
-	\caption[Terén vygenerovaný pomocí Perlinova a Simplex šumu]{Terén vygenerovaný pomocí Perlinova a Simplex šumu}\label{fig:perlin_simplex}
+	\caption[Terén vygenerovaný pomocí Perlinova a Simplex šumu]{Terén vygenerovaný pomocí Perlinova (vlevo) a Simplex šumu (vpravo)}\label{fig:perlin_simplex}
 \end{figure}
 
 Pro zjednodušení jsou dále v práci používány pojmy 1D, 2D a 3D šum. Pokud není uvedeno jinak, může být použit buď Perlinův nebo Simplex šum, vždy se však jedná o spojitý šum.
@@ -1381,7 +1380,7 @@ K simulaci rozložení biotopů byl využit Whittakerův systém. Robert Whittak
 \item Tropický prales
 \end{itemize}
 
-Whittakerův systém nedefinuje trvale zaledněné oblasti, které generátor přidává.
+Whittakerův systém nedefinuje trvale zaledněné oblasti, které generátor přidává pro teploty nižší než 10 °C a jakékoliv množství srážek.
 
 \subsection{Výběr biotopu}
 Whittakerův systém neobsahuje všechny kombinace teplot a srážek. Generátor terénu tento systém zjednodušuje a rozšiřuje trojúhelníkový tvar na čtverec. Teplota a srážky jsou rozděleny na 10 úrovní a biotopy jsou poměrově rozděleny přes všechny hodnoty srážek. Díky tomu dokáže generátor zpracovat každou kombinací vstupů pouhým vyhledáním v tabulce.
@@ -1394,7 +1393,7 @@ Komplexní srážkové modely mohou brát v potaz globální směr větru, poho�
 
 \subsection{Teplotní pásy} \label{sec:temp_band}
 
-Země je rozdělena do teplotních pásů, čím více se člověk nachází na severu/jihu, tím nižší je průměrná teplota. Generátor tuto skutečnost simuluje a rozšiřuje jí na nekonečný terén. Pokud se hráč pohybuje na sever, teplota nejdříve klesá až na svoje minimum a poté opět roste.
+Země je rozdělena do teplotních pásů, čím více se člověk nachází na severu/jihu, tím nižší je průměrná teplota. Generátor tuto skutečnost simuluje a rozšiřuje jí na nekonečný terén cyklickým střídáním pásů. Pokud se hráč pohybuje na sever, teplota nejdříve klesá až na svoje minimum a poté opět roste.
 
 Rozdělení do pásů nepřináší dostatečně dobré výsledky. Pásy jsou přesně definované a hráč si snadno všimne rovných předělů mezi biotopy. Obrázek~\ref{fig:biomes_old} zobrazuje mapu biotopů, kde lze vidět dlouhé rovné předěly vzniklé změnou teploty, ale i ostré hrany biotopů vzniklé změnou kombinace teploty a srážek.
 
@@ -1458,7 +1457,7 @@ Jak lze vidět z obrázku~\ref{fig:trees} vzdálenost mezi stromy (červené čt
 
 \section{Výška terénu}
 
-Perlinův šum umožňuje generovat terén, který pozvolně mění svou výšku. V~přírodě však existují hory, útesy, skály, které svůj výškový profil mění rapidně. Tohoto efektu není možné dosáhnout pouze pomoci jednoho šumu.
+Perlinův šum umožňuje generovat terén, který pozvolně mění svou výšku. V~přírodě však existují hory, útesy, skály, které svůj výškový profil mění rapidně. Tohoto efektu není možné dosáhnout pouze pomocí jednoho šumu.
 
 Komplexnější terén je možné generovat kombinací několika map šumu do jedné. Například jedna mapa může představovat výšku terénu – pohoří, vysočiny, roviny – a druhá drobné změny v terénu. Avšak prostřednictvím tohoto způsobu nelze docílit prudké změny terénu. Pro vytvoření prudkého stoupání generátor nelineárně transformuje intervaly šumu na výšku terénu. Transformační funkci zobrazuje graf~\ref{fig:noise_to_height}.
 
@@ -1508,6 +1507,35 @@ V této kapitole je shrnuto testování, které probíhalo při vývoji enginu a
 Pro unit testování byl zvolen testovací framework Catch2~\cite{catch2}. Mezi jeho výhody patří možnost poskytnutí vlastní main funkce. Spuštění testů bylo možné navázat na spuštění enginu (mohou běžet i samostatně). Tato možnost byla zapnuta v defaultním nastavení a pomohla urychlit vývoj, díky včasnému odhalení chyb, které by se projevily vizuálně. Mezi tyto chyby patří hlavně zpracování zdrojů enginu, které nemůže zachytit kompilátor. Například před\-zpracování shaderů před jejich překladem (vložení konstant do zdrojového kódu shaderu) nebo generace L-systémů.
 
 Automatizované testy jsou ve složce \textit{tests} a jejich struktura odpovídá struktuře zdrojových souborů (složka \textit{src}), které testují. Projekt obsahuje 340 asercí rozdělených do 14 skupin podle souborů, které testují. Pro spuštění testů byla vytvořena nová konfigurace -- \textit{Test}, která na základě podmíněného překladu spustí pouze testy.
+
+Testovací framework v základním nastavení zobrazuje pouze testy, které neproběhly úspěšně. Při zapnutí zobrazení všech testů může výsledek vypadat následovně:
+
+\begin{verbatim}
+Resource manager test
+  Replaces multiple preprocessor macros
+--------------------------------------------------------------
+C:\proj\VoxelGame\tests\renderer\ShaderTest.cpp(20)
+..............................................................
+C:\proj\VoxelGame\tests\renderer\ShaderTest.cpp(27): PASSED:
+  REQUIRE( ContainsLine(source, "#define CONS2 2.0") )
+with expansion:
+  true
+
+--------------------------------------------------------------
+game object tests
+  Component can be added
+--------------------------------------------------------------
+C:\proj\VoxelGame\tests\engine\GameObjectTest.cpp(6)
+..............................................................
+
+C:\proj\VoxelGame\tests\engine\GameObjectTest.cpp(10): PASSED:
+  REQUIRE( go.HasComponent<Components::Transform>() )
+with expansion:
+  true
+
+==============================================================
+All tests passed (340 assertions in 14 test cases)
+\end{verbatim}
 
 \section{Vizuální testování}
 
