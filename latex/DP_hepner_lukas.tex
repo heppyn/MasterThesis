@@ -1617,6 +1617,8 @@ Herní svět je generován deterministickým algoritmem -- nemění se při opak
 
 K navigaci po světe byl vytvořen prototyp hráče, kterému je umožněno pohybovat se libovolným směrem. Svět je průběžně generován v závislosti na jeho poloze. Oblasti, které opustil jsou uvolněny z paměti. 
 
+Práce obsahuje ukázkové scény představující možnosti enginu. Na scénách je zobrazeno například složení bloku z více textur nebo generování rostlin L-systémy. Další ukázky a kód použitý pro jejich generování lze nalézt v~příloze~\ref{sec:examples}.
+
 Scénu je možné exportovat do souboru ve formátu JSON. Možnosti použití exportované scény byly ukázány na nástroji, který načte scénu a na jejím základu vytvoří mapy terénu.
 
 Třídy enginu jsou otestovány unit testy. Na generátoru terénu byla uká\-zá\-na možnost, jak testovat jeho výstup pomocí dodatečných vizuálních nástrojů.
@@ -1654,112 +1656,222 @@ Data herního objektu jsou grafické kartě předána jako matice velikosti 4 x 
 	\item[PRNG] Pseudo Random Number Generator
 \end{description}
 
+\chapter{Ukázkové scény} \label{sec:examples}
 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % Tuto kapitolu z výsledné práce ODSTRAŇTE.
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% 
-% \chapter{Návod k~použití této šablony}
-% 
-% Tento dokument slouží jako základ pro napsání závěrečné práce na Fakultě informačních technologií ČVUT v~Praze.
-% 
-% \section{Výběr základu}
-% 
-% Vyberte si šablonu podle druhu práce (bakalářská, diplomová), jazyka (čeština, angličtina) a kódování (ASCII, \mbox{UTF-8}, \mbox{ISO-8859-2} neboli latin2 a nebo \mbox{Windows-1250}). 
-% 
-% V~české variantě naleznete šablony v~souborech pojmenovaných ve formátu práce\_kódování.tex. Typ může být:
-% \begin{description}
-% 	\item[BP] bakalářská práce,
-% 	\item[DP] diplomová (magisterská) práce.
-% \end{description}
-% Kódování, ve kterém chcete psát, může být:
-% \begin{description}
-% 	\item[UTF-8] kódování Unicode,
-% 	\item[ISO-8859-2] latin2,
-% 	\item[Windows-1250] znaková sada 1250 Windows.
-% \end{description}
-% V~případě nejistoty ohledně kódování doporučujeme následující postup:
-% \begin{enumerate}
-% 	\item Otevřete šablony pro kódování UTF-8 v~editoru prostého textu, který chcete pro psaní práce použít -- pokud můžete texty s~diakritikou normálně přečíst, použijte tuto šablonu.
-% 	\item V~opačném případě postupujte dále podle toho, jaký operační systém používáte:
-% 	\begin{itemize}
-% 		\item v~případě Windows použijte šablonu pro kódování \mbox{Windows-1250},
-% 		\item jinak zkuste použít šablonu pro kódování \mbox{ISO-8859-2}.
-% 	\end{itemize}
-% \end{enumerate}
-% 
-% 
-% V~anglické variantě jsou šablony pojmenované podle typu práce, možnosti jsou:
-% \begin{description}
-% 	\item[bachelors] bakalářská práce,
-% 	\item[masters] diplomová (magisterská) práce.
-% \end{description}
-% 
-% \section{Použití šablony}
-% 
-% Šablona je určena pro zpracování systémem \LaTeXe{}. Text je možné psát v~textovém editoru jako prostý text, lze však také využít specializovaný editor pro \LaTeX{}, např. Kile.
-% 
-% Pro získání tisknutelného výstupu z~takto vytvořeného souboru použijte příkaz \verb|pdflatex|, kterému předáte cestu k~souboru jako parametr. Vhodný editor pro \LaTeX{} toto udělá za Vás. \verb|pdfcslatex| ani \verb|cslatex| \emph{nebudou} s~těmito šablonami fungovat.
-% 
-% Více informací o~použití systému \LaTeX{} najdete např. v~\cite{wikilatex}.
-% 
-% \subsection{Typografie}
-% 
-% Při psaní dodržujte typografické konvence zvoleného jazyka. České \uv{uvozovky} zapisujte použitím příkazu \verb|\uv|, kterému v~parametru předáte text, jenž má být v~uvozovkách. Anglické otevírací uvozovky se v~\LaTeX{}u zadávají jako dva zpětné apostrofy, uzavírací uvozovky jako dva apostrofy. Často chybně uváděný symbol "{} (palce) nemá s~uvozovkami nic společného.
-% 
-% Dále je třeba zabránit zalomení řádky mezi některými slovy, v~češtině např. za jednopísmennými předložkami a spojkami (vyjma \uv{a}). To docílíte vložením pružné nezalomitelné mezery -- znakem \texttt{\textasciitilde}. V~tomto případě to není třeba dělat ručně, lze použít program \verb|vlna|.
-% 
-% Více o~typografii viz \cite{kobltypo}.
-% 
-% \subsection{Obrázky}
-% 
-% Pro umožnění vkládání obrázků je vhodné použít balíček \verb|graphicx|, samotné vložení se provede příkazem \verb|\includegraphics|. Takto je možné vkládat obrázky ve formátu PDF, PNG a JPEG jestliže používáte pdf\LaTeX{} nebo ve formátu EPS jestliže používáte \LaTeX{}. Doporučujeme preferovat vektorové obrázky před rastrovými (vyjma fotografií).
-% 
-% \subsubsection{Získání vhodného formátu}
-% 
-% Pro získání vektorových formátů PDF nebo EPS z~jiných lze použít některý z~vektorových grafických editorů. Pro převod rastrového obrázku na vektorový lze použít rasterizaci, kterou mnohé editory zvládají (např. Inkscape). Pro konverze lze použít též nástroje pro dávkové zpracování běžně dodávané s~\LaTeX{}em, např. \verb|epstopdf|.
-% 
-% \subsubsection{Plovoucí prostředí}
-% 
-% Příkazem \verb|\includegraphics| lze obrázky vkládat přímo, doporučujeme však použít plovoucí prostředí, konkrétně \verb|figure|. Například obrázek \ref{fig:float} byl vložen tímto způsobem. Vůbec přitom nevadí, když je obrázek umístěn jinde, než bylo původně zamýšleno -- je tomu tak hlavně kvůli dodržení typografických konvencí. Namísto vynucování konkrétní pozice obrázku doporučujeme používat odkazování z~textu (dvojice příkazů \verb|\label| a \verb|\ref|).
-% 
-% \begin{figure}\centering
-% 	\includegraphics[width=0.5\textwidth, angle=30]{cvut-logo-bw}
-% 	\caption[Příklad obrázku]{Ukázkový obrázek v~plovoucím prostředí}\label{fig:float}
-% \end{figure}
-% 
-% \subsubsection{Verze obrázků}
-% 
-% % Gnuplot BW i barevně
-% Může se hodit mít více verzí stejného obrázku, např. pro barevný či černobílý tisk a nebo pro prezentaci. S~pomocí některých nástrojů na generování grafiky je to snadné.
-% 
-% Máte-li například graf vytvořený v programu Gnuplot, můžete jeho černobílou variantu (viz obr. \ref{fig:gnuplot-bw}) vytvořit parametrem \verb|monochrome dashed| příkazu \verb|set term|. Barevnou variantu (viz obr. \ref{fig:gnuplot-col}) vhodnou na prezentace lze vytvořit parametrem \verb|colour solid|.
-% 
-% \begin{figure}\centering
-% 	\includegraphics{gnuplot-bw}
-% 	\caption{Černobílá varianta obrázku generovaného programem Gnuplot}\label{fig:gnuplot-bw}
-% \end{figure}
-% 
-% \begin{figure}\centering
-% 	\includegraphics{gnuplot-col}
-% 	\caption{Barevná varianta obrázku generovaného programem Gnuplot}\label{fig:gnuplot-col}
-% \end{figure}
-% 
-% 
-% \subsection{Tabulky}
-% 
-% Tabulky lze zadávat různě, např. v~prostředí \verb|tabular|, avšak pro jejich vkládání platí to samé, co pro obrázky -- použijte plovoucí prostředí, v~tomto případě \verb|table|. Například tabulka \ref{tab:matematika} byla vložena tímto způsobem.
-% 
-% \begin{table}\centering
-% 	\caption[Příklad tabulky]{Zadávání matematiky}\label{tab:matematika}
-% 	\begin{tabular}{|l|l|c|c|}\hline
-% 		Typ		& Prostředí		& \LaTeX{}ovská zkratka	& \TeX{}ovská zkratka	\tabularnewline \hline \hline
-% 		Text		& \verb|math|		& \verb|\(...\)|	& \verb|$...$|		\tabularnewline \hline
-% 		Displayed	& \verb|displaymath|	& \verb|\[...\]|	& \verb|$$...$$|	\tabularnewline \hline
-% 	\end{tabular}
-% \end{table}
-% 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+Tato příloha zobrazuje vybrané scény ze složky \textit{examples}, které ukazují mož\-nosti enginu. Pro přepínaní mezi procedurální generátorem a ukázkovými scénami bylo definováno makro \texttt{USE\_TERRAIN\_GEN}.
+
+\section{Generování trávy}
+
+Generace 2D trávy na základě tří za sebou jdoucích L-systémů -- obrázek~\ref{fig:ex_grass}.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/examples/grass}
+	\caption[Generace třech druhů trávy]{Generace třech druhů trávy}\label{fig:ex_grass}
+\end{figure}
+
+\begin{verbatim}
+LSystems::LSystemExecutor ge(0, 0.0f);
+Chunk chunk(glm::vec2(0.0f));
+// load L-systems from file
+const auto lSystems = 
+  LSystems::LSystemParser::LoadLSystemFromFile(
+    "./res/l-systems/plants/Grass2D.txt");
+if (!lSystems.empty()) {
+    auto pos = glm::vec3(0.0f);
+    for (const auto& lSystem : lSystems) {
+        // generate grass based on loaded L-systems
+        auto objects = ge.GenerateBasedOn(pos, lSystem,
+          0.3f, 5, Engine::Random::GetNoise(pos));
+        // add texture to the grass
+        // grass only contains one type of object - stem
+        for (auto& o : objects[0]) {
+            o.AddComponent<Components::SpritesheetTex>(
+              glm::vec2(1.0f, 0.0f));
+        }
+        // move object to chunk data
+        chunk.GetObjects()[Chunk::DefaultCube_].insert(
+          chunk.GetObjects()[Chunk::DefaultCube_].end(),
+          std::make_move_iterator(objects[0].begin()),
+          std::make_move_iterator(objects[0].end()));
+
+        pos += glm::vec3(10.0f, 0.0f, 0.0f);
+    }
+    chunk.FinisChunk();
+}
+else {
+    std::cout << "Failed to load L-system\n";
+}
+
+return chunk;
+\end{verbatim}
+
+\section{Generování stromů}
+
+Ukázka L-systému, který je přeložen z řetězce. Generátor náhodně mění vý\-vo\-jo\-vá stádia stromů a upravuje podle nich velikost objektů, ze kterých jsou složeny. Kód zároveň představuje možnost složení stromu z objektů s dvěma různými texturami. Obrázek~\ref{fig:ex_trees}.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/examples/trees}
+	\caption[Generace vývojových stádií stromu]{Generace vývojových stádií stromu}\label{fig:ex_trees}
+\end{figure}
+
+\begin{verbatim}
+Chunk chunk(glm::vec2(0.0f));
+
+// you can generate L-systems from string
+// but generation from file is preferred
+std::stringstream def;
+// yaw pitch shrink ratio
+def << "22.5 15.0 0.8\n"
+    // axiom
+    << "UES1u\n" // use 1 to switch output buffer
+    << "U > uU\n"
+    // letter > production
+    // save and load state of the turtle with [ and ]
+    << "E > [B][++++B][----B][++++++++B]+uxUE\n"
+    << "# branch expansion\n" // comments start with #
+    << "F > f[-xB]+[+xB]xF\n"
+    << "F > f[+xB]-[-xB]xF\n"
+    << "F > f[+xB][-xB]xF\n"
+    << "# branches\n"
+    << "B > ^xxfF1Sf\n"
+    << "B > ^xxfF1Sxf\n"
+    << "B > ^xxfF1SXf\n"
+    << "B > ^^xxfF1Sf\n"
+    << "B > ^^xxfF1Sxf\n"
+    << "B > ^^xxfF1SXf\n";
+// load L-system from string stream
+const auto lSystems = LSystems::LSystemParser::LoadLSystem(def);
+// set random angle to 50 %
+LSystems::LSystemExecutor ge(0.5f);
+// add random derivations and scale down smaller plants
+ge.ScaleDerivations(4, 0.7f, 1.0f);
+auto pos = glm::vec3(40.0f, 0.0f, 0.0f);
+
+for (int i = 0; i < 8; ++i) {
+    // generate tree based on definition above
+    auto objects = ge.GenerateBasedOn(pos, lSystems[0], 
+      1.0f, 4, Engine::Random::GetNoise(pos));
+    // add bark texture
+    for (auto& o : objects[0]) {
+        o.AddComponent<Components::SpritesheetTex>(
+          glm::vec2(6.0f, 5.0f));
+    }
+    // add leaves texture
+    for (auto& o : objects[1]) {
+        o.AddComponent<Components::SpritesheetTex>(
+          glm::vec2(4.0f, 3.0f));
+    }
+    // move object to chunk data
+    chunk.GetObjects()[Chunk::DefaultCube_].insert(
+      chunk.GetObjects()[Chunk::DefaultCube_].end(),
+      std::make_move_iterator(objects[0].begin()),
+      std::make_move_iterator(objects[0].end()));
+
+    chunk.GetObjects()[Chunk::DefaultCube_].insert(
+      chunk.GetObjects()[Chunk::DefaultCube_].end(),
+      std::make_move_iterator(objects[1].begin()),
+      std::make_move_iterator(objects[1].end()));
+
+    pos += glm::vec3(12.0f, 0.0f, 0.0f);
+}
+
+chunk.FinisChunk();
+return chunk;
+\end{verbatim}
+
+\section{Generování terénu}
+
+Terén generovaný pomocí Perlinova a Simplex šumu. Obrázek~\ref{fig:perlin_simplex}.
+
+\begin{verbatim}
+// get block height from Perlin/Simplex noise
+const auto heightPer = static_cast<unsigned>(
+  Engine::Random::Perlin.noise2D_0_1(
+    i / freq, j / freq) * 8.0f);
+const auto heightSim = static_cast<unsigned>(
+  Engine::Random::Simplex.noise0_1(
+    i / freq, j / freq) * 8.0f);
+for (unsigned h = 0; h < heightPer; ++h) {
+    chunk.AddObject(GameObjectFactory::CreateObject(
+      { i, h, j },
+      { 0.0f, 1.0f }));
+}
+glm::vec3 pos = { i, heightPer, j };
+// generate grassland tree
+// biome determines density, type, ...
+chunk.AddObjectData(Terrain::Vegetation::TreeFactory::
+  GenerateTree(pos, Terrain::BiomeType::Grassland));
+// generate grassland grass
+auto grass = Terrain::Vegetation::GrassFactory::GenerateGrass(
+  pos, Terrain::BiomeType::Grassland);
+chunk.AddObjectsTrans(std::move(grass), 
+  Terrain::Vegetation::GrassFactory::GrassCube());
+
+// generate grass block with different top and sides
+chunk.AddObject(GameObjectFactory::CreateObject(pos, 
+  { 1.0f, 1.0f }), Engine::Cube::PIPE);
+chunk.AddObject(GameObjectFactory::CreateObject(pos,
+  { 2.0f, 2.0f }),
+  Engine::Cube::BlockFaces::CreateBlockFaces(
+    Engine::Cube::Faces::TOP));
+// do the same for Simplex terrain…
+\end{verbatim}
+
+\section{Rozmístění stromů}
+
+Vysvětlení, jak generátor rozmisťuje stromy s využitím Perlinova šumu. Stro\-my jsou umístěny do ostrého lokálního maxima funkce reprezentované výškou terénu. Obrázek~\ref{fig:cactus}.
+
+\begin{verbatim}
+// visualize distribution of trees using Perlin noise
+constexpr auto freq = 5.0f;
+const auto height = static_cast<unsigned>(
+  Engine::Random::Perlin.noise1D_0_1(i / freq) * 20.0f);
+for (unsigned h = 0; h <= height; ++h) {
+    chunk.AddObject(GameObjectFactory::CreateObject(
+      { i, h, 0.0f },
+      { 6.0f, 4.0f }));
+}
+
+// place cactus only in sharp local maximum of the function
+const auto left = static_cast<unsigned>(Engine::Random::
+  Perlin.noise1D_0_1((i - 1) / freq) * 20.0f);
+const auto right = static_cast<unsigned>(Engine::Random::
+  Perlin.noise1D_0_1((i + 1) / freq) * 20.0f);
+if (height > left && height > right) {
+    chunk.AddObjects(Terrain::Vegetation::Tree::SpawnCactus(
+      { i, height, 0.0f }));
+}
+\end{verbatim}
+
+\section{Blok s více texturami}
+
+Složení bloku ze tří textur. Obrázek~\ref{fig:block_composition}.
+
+\begin{verbatim}
+chunk.AddObject(GameObjectFactory::CreateObject(
+  { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }), Engine::Cube::PIPE);
+chunk.AddObject(GameObjectFactory::CreateObject(
+  { 1.0f, 0.0f, 0.0f }, { 2.0f, 2.0f }),
+  Engine::Cube::BlockFaces::CreateBlockFaces(
+    Engine::Cube::Faces::TOP));
+chunk.AddObject(GameObjectFactory::CreateObject(
+  { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }),
+  Engine::Cube::BlockFaces::CreateBlockFaces(
+    Engine::Cube::Faces::BOTTOM));
+
+chunk.AddObject(GameObjectFactory::CreateObject(
+  { -0.5f, 0.0f, 0.0f }, { 1.0f, 1.0f }), Engine::Cube::PIPE);
+
+chunk.AddObject(GameObjectFactory::CreateObject(
+  { -2.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }),
+  Engine::Cube::BlockFaces::CreateBlockFaces(
+    Engine::Cube::Faces::BOTTOM));
+
+chunk.AddObject(GameObjectFactory::CreateObject(
+  { -3.5f, 0.0f, 0.0f }, { 2.0f, 2.0f }),
+  Engine::Cube::BlockFaces::CreateBlockFaces(
+    Engine::Cube::Faces::TOP));
+\end{verbatim}
 
 \chapter{Obsah přiloženého CD}
 
