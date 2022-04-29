@@ -327,7 +327,7 @@ Pro objekty, které nemají všech šest stěn nebo mají průhlednou texturu, j
 
 \section{Průhledné a poloprůhledné textury}
 
-Při vykreslování textur majících průhlednost (alfa $<$ 1) může nastat několik problémů. Prvním z nich je pořadí vykreslování objektů. Pokud má textura průhlednost, musí se její barva zkombinovat s barvami textur, které překrývá. Na obrázku~\ref{fig:alpha} jsou textury vykreslovány postupně z pravého dolního rohu, po řádcích směrem k levému hornímu rohu. Lze si všimnout, že průhledná část trávy je korektně smíchána s~barvou bloku pod ní (je vykreslen první). Bloky v pozadí obrázku jsou překryté modrou barvou v~místech, kde je textura trávy průhledná.
+Při vykreslování textur majících průhlednost (alfa $<$ 1)\footnote{Použité textury jsou uloženy ve formátu PNG. Alfa může nabývat hodnot 0--255, ale OpenGL ji převede do floatu v rozsahu 0--1.} může nastat několik problémů. Prvním z nich je pořadí vykreslování objektů. Pokud má textura průhlednost, musí se její barva zkombinovat s barvami textur, které překrývá. Na obrázku~\ref{fig:alpha} jsou textury vykreslovány postupně z pravého dolního rohu, po řádcích směrem k levému hornímu rohu. Lze si všimnout, že průhledná část trávy je korektně smíchána s~barvou bloku pod ní (je vykreslen první). Bloky v pozadí obrázku jsou překryté modrou barvou v~místech, kde je textura trávy průhledná.
 
 \begin{figure}\centering
 	\includegraphics[width=\textwidth]{images/alpha}
@@ -376,7 +376,7 @@ Jednou z aproximací reálného světa je Phongův osvětlovací model, skládaj
 \item Spekulární (přímé) světlo  --- Simuluje odraz světla od lesklého předmětu.
 \end{itemize}
 
-Výpočet osvětlení může být prováděn na CPU, nastavením světlosti každé stěny bloku. Pokud má být docíleno věrnějšího výsledku, je nutné počítat světlost pro každý fragment objektu (úhel dopadu světla se může výrazně lišit pro fragmenty na opačných stranách objektu). Výpočet je proto prováděn na grafické kartě, přesněji ve fragment shaderu.
+Výpočet osvětlení může být prováděn na CPU, nastavením světlosti každé stěny bloku. Pokud má být docíleno věrnějšího výsledku, je nutné počítat světlost pro každý fragment objektu (úhel dopadu světla se může výrazně lišit pro fragmenty na opačných stranách objektu). Výpočet je proto prováděn na grafické kartě, přesněji ve fragment shaderu\footnote{Výpočet je možné provést i ve vertex shaderu a fragment shader by pouze interpoloval hodnoty světlosti. Tato technika snižuje počet provedených výpočtů, ale zároveň snižuje vizuální kvalitu osvětlení.}.
 
 Ambientní složka světla je předána grafické kartě, kde je vynásobena s~barvou objektu -- textury.
 
