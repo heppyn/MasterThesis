@@ -92,7 +92,11 @@ Svět bude generovaný na základě seedu. Všechny části světa musí být st
 
 \end{introduction}
 
-\chapter{Technologie}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % Architektura a technologie
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
+\chapter{Architektura a technologie}
 
 Na trhu se nachází celá řada herních enginů, jejichž cenové politiky umožňují vytvářet hry jak nezávislým vývojářům, kteří mohou využít enginy dostupné zcela zdarma jako je Godot či Cocos2D, případně jsou zpoplatněné autorskými poplatky při dosažení zisku, jako je CryEngine, Unreal Engine či Unity~\cite{engines}. Herní studia často využívají placených licencí, zajišťujících podporu od tvůrce enginu.
 
@@ -125,6 +129,38 @@ Herní enginy se skládají z vrstev, kde vyšší vrstvy komunikují s nižší
 \item Herní subsystémy --- můžou být více či méně svázané s hrou samotnou. Zajišťují společnou funkcionalitu her, jako je: zobrazení menu, mechaniky hráčem ovládané postavy, kamera, umělá inteligence, skriptovací engine.
 
 \end{enumerate}
+
+\section{Návrh architektury}
+
+Engine je rozdělen do několika modulů a sub modulů, seskupujících funkcionalitu stejné kategorie. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
+
+\begin{figure}\centering
+	\includegraphics[width=\textwidth]{images/architecture2}
+	\caption[Architektura enginu]{Architektura enginu}\label{fig:architecture}
+\end{figure}
+
+\subsection{Engine}
+
+Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpraco\-vá\-vá\-ní a generování objektů na základě L-systému. Třídy zajišťující implementaci, s~kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
+
+Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu~\cite{ecs}. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a~jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
+
+Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují herní objekty. Správu scény zajišťuje třída \texttt{Scene}, která ukládá chunky do \textit{std::map} (seřazená asociativní mapa) využívající jejich pozici jako klíč. Pozice chunku -- \textit{glm::vec2} může být použita jako klíč díky porovnávacímu operátoru, který vektory řadí lexikograficky po složkách. Rozdělení na chunky zrychluje operace jako je ořezání viditelné herní plochy, po kterém třída \texttt{Scene} upraví pole ukazatelů na data objektů, které mají být vykresleny.
+
+Každý chunk obsahuje dvě pole herních objektů, rozdělené na průhledné a neprůhledné. Herní objekty se mohou překrývat a mít libovolný posun vůči počátku scény. Z důvodu úspory paměti nejsou rozděleny na sub-voxely, které se nepřekrývají.
+
+Velikost chunku (šířka a hloubka) je 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
+
+Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
+
+Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou funkcionalitu používanou generátorem terénu. 
+
+\subsection{Renderer}
+
+Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s~OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
+
+Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots ~Hlav-ní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden či více objektů najednou.
+
 
 \section{OpenGL}
 K interakci s grafickou kartou bylo zvoleno OpenGL vyvíjené skupinou Khronos. Pro vývoj byla zvolena stabilní verze 4.6, vydaná v roce 2017. Tato verze přináší pokročilé funkce využívané v shaderech, ale je na trhu dostatečně dlouho, aby byla podporována většinou moderních grafických karet.
@@ -171,41 +207,6 @@ Projekt obsahuje knihovny řešící specifické problémy. První z nich je Ope
 Další knihovnou je \textit{stb image} sloužící k načítání obrázků. Knihovna má omezený počet typů souborů, s kterými dokáže pracovat. Její použití je však snadné a engine používá pouze dva typy obrázků – JPEG a PNG. Její autor o ní říká, že je primárně určená pro herní vývojáře a další osoby, které se dokáží vyhnout problematickým obrázkům a potřebují pouze jednoduché rozhraní~\cite{stb_image}.
 
 Pro generování terénu bude využit Perlinův a Simpex šum implementovaný knihovnami  \textit{siv::PerlinNoise}~\cite{perlin} a \textit{SimplexNoise}~\cite{simplex_lib}. Knihovny dokáží generovat 1D, 2D nebo 3D šum. Obsahují taktéž podporu pro oktávový šum. Důležitou součástí knihoven je možnost poskytnout vlastní seed, na jehož základě je šum generován.
-
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % Architektura
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-
-\chapter{Architektura}
-
-Engine je rozdělen do několika modulů a sub modulů, seskupujících funkcionalitu stejné kategorie. Diagram~\ref{fig:architecture} ukazuje vzájemnou komunikaci mezi moduly a~třídy jež obsahuje.
-
-\begin{figure}\centering
-	\includegraphics[width=\textwidth]{images/architecture2}
-	\caption[Architektura enginu]{Architektura enginu}\label{fig:architecture}
-\end{figure}
-
-\section{Engine}
-
-Hlavním modulem je \texttt{Engine}, zajišťující vytváření herních objektů, jejich správu v paměti, práci s náhodnými jevy, zpracování vstupů a správu zdrojů. Samostatným modulem je modul \texttt{L-systems}, umožňující načítání, zpraco\-vá\-vá\-ní a generování objektů na základě L-systému. Třídy zajišťující implementaci, s~kterými by uživatel enginu neměl interagovat jsou umístěny v modulu \texttt{Detail}.
-
-Herní objekty by neměly být vytvářeny přímo. Jejich tvorbu zajišťuje tovární třída \texttt{GameObjectFactory}. Herní objekty implementují ECS (Entity-Component-System) architekturu~\cite{ecs}. Vlastnosti objektu jsou určeny jeho komponentami. Ty určují pozici ve světě (\texttt{Transform}), tvar objektu (\texttt{Mesh}) a~jeho texturu (\texttt{Mesh} nebo \texttt{SpritesheetTex}).
-
-Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují herní objekty. Správu scény zajišťuje třída \texttt{Scene}, která ukládá chunky do \textit{std::map} (seřazená asociativní mapa) využívající jejich pozici jako klíč. Pozice chunku -- \textit{glm::vec2} může být použita jako klíč díky porovnávacímu operátoru, který vektory řadí lexikograficky po složkách. Rozdělení na chunky zrychluje operace jako je ořezání viditelné herní plochy, po kterém třída \texttt{Scene} upraví pole ukazatelů na data objektů, které mají být vykresleny.
-
-Každý chunk obsahuje dvě pole herních objektů, rozdělené na průhledné a neprůhledné. Herní objekty se mohou překrývat a mít libovolný posun vůči počátku scény. Z důvodu úspory paměti nejsou rozděleny na sub-voxely, které se nepřekrývají.
-
-Velikost chunku (šířka a hloubka) je 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
-
-Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
-
-Moduly \texttt{Engine} a \texttt{Helpers} obsahují veškerou funkcionalitu používanou generátorem terénu. 
-
-\section{Renderer}
-
-Moduly \texttt{Renderer} a \texttt{OpenGl} implementují veškerou funkcionalitu spojenou s~OpenGL -- ostatní moduly jsou nezávislé na vykreslovací knihovně. Funkce přímo nesouvisející s vykreslováním (správa oken, zpracování vstupu, měření délky operací na GPU) se nacházejí v modulu \texttt{OpenGl}.
-
-Modul \texttt{Renderer} zastřešuje veškerou funkcionalitu spojenou s vykreslová-ním a komunikací s grafickou kartou. Součástí modulu jsou i pomocné třídy umožňující snazší práci s koncepty OpenGL jako jsou shadery, textury\dots ~Hlav-ní vykreslovací metody obsahují třídy \texttt{SceneRenderer} a \texttt{CubeRenderer}, vykreslující celou scénu, respektive jeden či více objektů najednou.
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % Vykreslení scény
