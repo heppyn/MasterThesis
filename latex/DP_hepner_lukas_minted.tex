@@ -151,7 +151,7 @@ Scéna je složena z bloků terénu (třída \texttt{Chunk}), které obsahují h
 
 Každý chunk obsahuje dvě pole herních objektů, rozdělené na průhledné a neprůhledné. Herní objekty se mohou překrývat a mít libovolný posun vůči počátku scény. Z důvodu úspory paměti nejsou rozděleny na sub-voxely, které se nepřekrývají.
 
-Velikost chunku (šířka a hloubka) je 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
+Velikost chunku je uložena ve statické proměnné \texttt{ChunkSize}. V základním nastavení je velikost chunku (šířka a hloubka) 16 x 16 bloků. Třída \texttt{Chunk} si pro každý blok ukládá metadata obsahující výšku terénu, biotop, teplotu, vlhkost a informaci o tom, jestli se na bloku nachází strom. Metadata jsou uložena ve třídě \texttt{BlockInfo}, která data reprezentuje jako 32bitovou hodnotu (\textit{uint32\_t}). Metadata jsou součástí exportované scény a mohou být využita pro rozdílnou interpretaci scény.
 
 Modul \texttt{Helpers} zajišťuje převod objektů na textové řetězce, matematické operace (porovnání čísel typu float, porovnávací operátory\dots) a sdružuje konstanty používané v enginu.
 
