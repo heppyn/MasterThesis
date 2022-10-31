@@ -8,3 +8,4 @@ This project is written in latex, but has a working draft written in Microsoft W
 You can check the [PDF with the latest](https://github.com/heppyn/MasterThesis/blob/main/latex/DP_hepner_lukas.pdf) state of the thesis in latex folder.
 
 ![valleys](valleys.PNG)
+![mountains](latex/images/world_gen/mountains.PNG)
